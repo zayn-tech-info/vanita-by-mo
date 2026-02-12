@@ -1,7 +1,7 @@
 import { Herosection } from "../components/Herosection";
 import { Navbar } from "../components/Navbar";
 import { Categories } from "../components/Categories";
-import { Products } from "../components/products";
+import { Products } from "../components/Products";
 import { About } from "../components/About";
 import { Features } from "../components/Features";
 import { Testimonials } from "../components/Testimonials";

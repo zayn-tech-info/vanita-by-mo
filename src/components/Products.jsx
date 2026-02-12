@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ProductQuickView } from "./ProductQuickView";
+import { useCart } from "../hooks/useCart";
 import product1 from "../assets/images/IMG_20260209_133744.jpg";
 import product2 from "../assets/images/IMG_20260209_133826.jpg";
 import product3 from "../assets/images/IMG_20260209_133904.jpg";
@@ -17,6 +18,7 @@ export function Products() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const { addToCart } = useCart();
 
   const filters = [
     { id: "all", label: "All" },
@@ -228,7 +230,10 @@ export function Products() {
                       : "lg:opacity-0 lg:translate-y-4"
                   }`}
                 >
-                  <button className="flex-1 py-2 sm:py-3 bg-white text-stone-900 text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.15em] uppercase hover:bg-stone-900 hover:text-white transition-colors duration-300">
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="flex-1 py-2 sm:py-3 bg-white text-stone-900 text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.15em] uppercase hover:bg-stone-900 hover:text-white transition-colors duration-300"
+                  >
                     Add to Cart
                   </button>
                   <button className="w-8 h-8 sm:w-12 sm:h-12 bg-white text-stone-900 hover:bg-stone-900 hover:text-white transition-colors duration-300 flex items-center justify-center shrink-0">

@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useCart } from "../hooks/useCart";
 
 export function Navbar() {
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const cartCount = 2;
+  const { cartCount } = useCart();
 
   const shopCategories = [
     { name: "Dresses", href: "/shop" },
@@ -206,7 +207,7 @@ export function Navbar() {
 
               {/* Cart */}
               <a
-                href="#"
+                href="/cart"
                 className="relative p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
                 aria-label="Cart"
               >

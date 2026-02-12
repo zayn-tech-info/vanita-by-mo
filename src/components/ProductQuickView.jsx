@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useCart } from "../hooks/useCart";
 
 export function ProductQuickView({ product, isOpen, onClose }) {
   const [selectedSize, setSelectedSize] = useState(null);
@@ -6,6 +7,7 @@ export function ProductQuickView({ product, isOpen, onClose }) {
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const { addToCart } = useCart();
 
   // Product detail data (enriched from the base product)
   const productDetails = getProductDetails(product);
@@ -342,7 +344,18 @@ export function ProductQuickView({ product, isOpen, onClose }) {
 
             {/* Actions */}
             <div className="flex gap-3 mb-8">
-              <button className="flex-1 py-3.5 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors duration-300 flex items-center justify-center gap-2">
+              <button
+                onClick={async () => {
+                  await addToCart(
+                    product,
+                    quantity,
+                    selectedSize,
+                    selectedColor,
+                  );
+                  onClose();
+                }}
+                className="flex-1 py-3.5 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors duration-300 flex items-center justify-center gap-2"
+              >
                 <svg
                   className="w-4 h-4"
                   fill="none"

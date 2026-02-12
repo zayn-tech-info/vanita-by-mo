@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { ProductQuickView } from "../components/ProductQuickView";
+import { useCart } from "../hooks/useCart";
 import {
   allProducts,
   categories,
@@ -23,6 +24,7 @@ export function Shop() {
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 9;
+  const { addToCart } = useCart();
 
   // Toggle size
   const toggleSize = (size) => {
@@ -499,7 +501,10 @@ export function Shop() {
                               : "lg:opacity-0 lg:translate-y-4"
                           }`}
                         >
-                          <button className="flex-1 py-2 sm:py-3 bg-white text-stone-900 text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.15em] uppercase hover:bg-stone-900 hover:text-white transition-colors duration-300">
+                          <button
+                            onClick={() => addToCart(product)}
+                            className="flex-1 py-2 sm:py-3 bg-white text-stone-900 text-[9px] sm:text-xs tracking-widest sm:tracking-[0.15em] uppercase hover:bg-stone-900 hover:text-white transition-colors duration-300"
+                          >
                             Add to Cart
                           </button>
                           <button className="w-8 h-8 sm:w-12 sm:h-12 bg-white text-stone-900 hover:bg-stone-900 hover:text-white transition-colors duration-300 flex items-center justify-center shrink-0">

@@ -7,12 +7,12 @@ export function Navbar() {
   const cartCount = 2;
 
   const shopCategories = [
-    { name: "Dresses", href: "#" },
-    { name: "Tops & Blouses", href: "#" },
-    { name: "Pants & Trousers", href: "#" },
-    { name: "Skirts", href: "#" },
-    { name: "Loungewear", href: "#" },
-    { name: "Accessories", href: "#" },
+    { name: "Dresses", href: "/shop" },
+    { name: "Tops & Blouses", href: "/shop" },
+    { name: "Pants & Trousers", href: "/shop" },
+    { name: "Skirts", href: "/shop" },
+    { name: "Loungewear", href: "/shop" },
+    { name: "Accessories", href: "/shop" },
   ];
 
   return (

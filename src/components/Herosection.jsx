@@ -140,7 +140,7 @@ export function Herosection() {
                 }`}
               >
                 <a
-                  href="#"
+                  href="#collection"
                   className="group inline-flex items-center gap-3 px-8 py-4 border border-white/30 text-white text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-stone-900 transition-all duration-300"
                 >
                   {slide.cta}

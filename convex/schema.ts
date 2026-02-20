@@ -13,4 +13,9 @@ export default defineSchema({
     size: v.optional(v.string()),
     color: v.optional(v.string()),
   }).index("by_session", ["sessionId"]),
+  user: defineTable({
+    name: v.string(),
+    email: v.string(),
+    password: v.string(),
+  }).index("by_email", ["email"]),
 });

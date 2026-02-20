@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-// Generate a unique session ID and persist it in localStorage
 function generateSessionId() {
   return (
     "sess_" + Math.random().toString(36).substring(2) + Date.now().toString(36)

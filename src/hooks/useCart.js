@@ -12,7 +12,6 @@ export function useCart() {
   const clearCartMutation = useMutation(api.cart.clearCart);
 
   const addToCart = async (product, quantity = 1, size, color) => {
-    // For image, we need to convert the imported module path to a string
     const imageStr =
       typeof product.image === "string"
         ? product.image

@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-// Get all cart items for a session
 export const getCart = query({
   args: { sessionId: v.string() },
   handler: async (ctx, args) => {
@@ -12,7 +11,6 @@ export const getCart = query({
   },
 });
 
-// Get cart item count for a session
 export const getCartCount = query({
   args: { sessionId: v.string() },
   handler: async (ctx, args) => {
@@ -24,7 +22,7 @@ export const getCartCount = query({
   },
 });
 
-// Add item to cart (or increment quantity if same product/size/color exists)
+ 
 export const addToCart = mutation({
   args: {
     sessionId: v.string(),
@@ -38,7 +36,6 @@ export const addToCart = mutation({
     color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Check if item with same product, size, and color already exists
     const existingItems = await ctx.db
       .query("cart")
       .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
@@ -72,7 +69,7 @@ export const addToCart = mutation({
   },
 });
 
-// Update item quantity
+ 
 export const updateQuantity = mutation({
   args: {
     id: v.id("cart"),
@@ -88,7 +85,7 @@ export const updateQuantity = mutation({
   },
 });
 
-// Remove item from cart
+ 
 export const removeFromCart = mutation({
   args: { id: v.id("cart") },
   handler: async (ctx, args) => {
@@ -96,7 +93,7 @@ export const removeFromCart = mutation({
   },
 });
 
-// Clear entire cart
+ 
 export const clearCart = mutation({
   args: { sessionId: v.string() },
   handler: async (ctx, args) => {

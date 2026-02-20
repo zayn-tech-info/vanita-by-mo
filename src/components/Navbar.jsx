@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCart } from "../hooks/useCart";
+import { Link } from "react-router-dom";
 
 export function Navbar() {
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -18,12 +19,9 @@ export function Navbar() {
 
   return (
     <header className="relative">
-      {/* Top announcement bar */}
       <div className="bg-stone-900 text-white text-center py-2 text-xs tracking-widest uppercase">
         Free Shipping on Orders Over $150 | Handcrafted with Love
       </div>
-
-      {/* Main navbar */}
       <nav className="bg-[#faf9f7] border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -59,15 +57,10 @@ export function Navbar() {
 
             {/* Logo */}
             <a href="/" className="flex flex-col items-center group relative">
-              {/* Decorative line above */}
               <span className="w-12 h-px bg-linear-to-r from-transparent via-amber-600 to-transparent mb-2 group-hover:w-16 transition-all duration-500"></span>
-
-              {/* Main brand name with gradient */}
-              <span className="text-2xl sm:text-3xl font-extralight tracking-[0.4em] bg-gradient-to-r from-stone-800 via-stone-600 to-stone-800 bg-clip-text text-transparent group-hover:from-amber-800 group-hover:via-amber-600 group-hover:to-amber-800 transition-all duration-500">
+              <span className="text-2xl sm:text-3xl font-extralight tracking-[0.4em] bg-linear-to-r from-stone-800 via-stone-600 to-stone-800 bg-clip-text text-transparent group-hover:from-amber-800 group-hover:via-amber-600 group-hover:to-amber-800 transition-all duration-500">
                 VANTIA
               </span>
-
-              {/* Subtitle with elegant styling */}
               <div className="flex items-center gap-2 mt-1">
                 <span className="w-4 h-[0.5px] bg-amber-600/60"></span>
                 <span className="text-[9px] tracking-[0.5em] text-amber-700/80 font-light uppercase">
@@ -75,12 +68,10 @@ export function Navbar() {
                 </span>
                 <span className="w-4 h-[0.5px] bg-amber-600/60"></span>
               </div>
-
-              {/* Decorative line below */}
-              <span className="w-8 h-[1px] bg-gradient-to-r from-transparent via-stone-400 to-transparent mt-2 group-hover:w-12 transition-all duration-500"></span>
+ 
+              <span className="w-8 h-1px bg-linear-to-r from-transparent via-stone-400 to-transparent mt-2 group-hover:w-12 transition-all duration-500"></span>
             </a>
 
-            {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               <a
                 href="#"
@@ -184,9 +175,9 @@ export function Navbar() {
                 </svg>
               </button>
 
-              {/* Account - hidden on mobile */}
-              <a
-                href="#"
+              
+              <Link
+                to="/login"
                 className="hidden sm:block p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
                 aria-label="Account"
               >
@@ -203,11 +194,11 @@ export function Navbar() {
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                   />
                 </svg>
-              </a>
+              </Link>
 
               {/* Cart */}
-              <a
-                href="/cart"
+              <Link
+                to="/cart"
                 className="relative p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
                 aria-label="Cart"
               >
@@ -229,7 +220,7 @@ export function Navbar() {
                     {cartCount}
                   </span>
                 )}
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,24 +1,55 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { ProductQuickView } from "../components/ProductQuickView";
 import { useCart } from "../hooks/useCart";
-import {
-  allProducts,
-  categories,
-  sizeOptions,
-  colorOptions,
-  sortOptions,
-} from "../data/products";
 import heroImage from "../assets/images/hero_section3.jpg";
+import { Search } from "lucide-react";
+
+const categories = [
+  { id: "all", label: "All" },
+  { id: "dresses", label: "Dresses" },
+  { id: "tops", label: "Tops" },
+  { id: "sets", label: "Sets" },
+  { id: "accessories", label: "Accessories" },
+];
+
+const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
+
+const colorOptions = [
+  { name: "Earth Brown", hex: "#8B6F47" },
+  { name: "Royal Blue", hex: "#2C3E7B" },
+  { name: "Sunset Orange", hex: "#C2703E" },
+  { name: "Natural Ivory", hex: "#F5F0E8" },
+  { name: "Terracotta", hex: "#C75E3A" },
+  { name: "Forest Green", hex: "#3D5C3A" },
+  { name: "Charcoal", hex: "#44403c" },
+  { name: "Cream", hex: "#FAF3E8" },
+  { name: "Heritage Gold", hex: "#B8860B" },
+  { name: "Deep Indigo", hex: "#2C2C54" },
+  { name: "Rust", hex: "#A0522D" },
+  { name: "Sand", hex: "#D2B48C" },
+];
+
+const sortOptions = [
+  { id: "featured", label: "Featured" },
+  { id: "newest", label: "Newest" },
+  { id: "price-low", label: "Price: Low to High" },
+  { id: "price-high", label: "Price: High to Low" },
+  { id: "bestselling", label: "Best Selling" },
+];
 
 export function Shop() {
   const [searchParams] = useSearchParams();
+  const allProducts = useQuery(api.products.list) || [];
 
   const [activeCategory, setActiveCategory] = useState(
     searchParams.get("category") || "all",
   );
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 500]);
@@ -44,6 +75,10 @@ export function Shop() {
     } else {
       setSortBy("featured");
     }
+
+    const q = searchParams.get("q");
+    setSearchQuery(q || "");
+
     setCurrentPage(1);
   }, [searchParams]);
 
@@ -87,6 +122,7 @@ export function Shop() {
     setSelectedColors([]);
     setPriceRange([0, 500]);
     setSortBy("featured");
+    setSearchQuery("");
     setCurrentPage(1);
   };
 
@@ -95,11 +131,18 @@ export function Shop() {
     (activeCategory !== "all" ? 1 : 0) +
     selectedSizes.length +
     selectedColors.length +
-    (priceRange[0] > 0 || priceRange[1] < 500 ? 1 : 0);
+    (priceRange[0] > 0 || priceRange[1] < 500 ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];
+
+    // Search filter
+    if (searchQuery) {
+      const lowerQ = searchQuery.toLowerCase();
+      result = result.filter((p) => p.name.toLowerCase().includes(lowerQ));
+    }
 
     // Category filter
     if (activeCategory !== "all") {
@@ -148,7 +191,15 @@ export function Shop() {
     }
 
     return result;
-  }, [activeCategory, selectedSizes, selectedColors, priceRange, sortBy]);
+  }, [
+    allProducts,
+    searchQuery,
+    activeCategory,
+    selectedSizes,
+    selectedColors,
+    priceRange,
+    sortBy,
+  ]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -409,6 +460,15 @@ export function Shop() {
             <span className="text-xs text-stone-500 tracking-wide font-light mr-1">
               Active:
             </span>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="flex items-center gap-1.5 px-3 py-1 bg-stone-100 text-stone-700 text-xs tracking-wide border border-stone-200 hover:border-stone-400 transition-colors"
+              >
+                Search: {searchQuery}
+                <Search size={15} />
+              </button>
+            )}
             {activeCategory !== "all" && (
               <button
                 onClick={() => setActiveCategory("all")}
@@ -498,9 +558,9 @@ export function Shop() {
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                   {paginatedProducts.map((product) => (
                     <div
-                      key={product.id}
+                      key={product._id}
                       className="group relative"
-                      onMouseEnter={() => setHoveredProduct(product.id)}
+                      onMouseEnter={() => setHoveredProduct(product._id)}
                       onMouseLeave={() => setHoveredProduct(null)}
                     >
                       {/* Product Image */}
@@ -514,7 +574,7 @@ export function Shop() {
                         {/* Hover overlay - desktop only */}
                         <div
                           className={`absolute inset-0 bg-black/20 transition-opacity duration-300 hidden lg:block ${
-                            hoveredProduct === product.id
+                            hoveredProduct === product._id
                               ? "opacity-100"
                               : "opacity-0"
                           }`}
@@ -537,7 +597,7 @@ export function Shop() {
                         {/* Quick Actions */}
                         <div
                           className={`absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 flex gap-1 sm:gap-2 transition-all duration-300 ${
-                            hoveredProduct === product.id
+                            hoveredProduct === product._id
                               ? "opacity-100 translate-y-0"
                               : "lg:opacity-0 lg:translate-y-4"
                           }`}
@@ -569,7 +629,7 @@ export function Shop() {
                         <button
                           onClick={() => setQuickViewProduct(product)}
                           className={`absolute top-2 sm:top-4 right-2 sm:right-4 w-7 h-7 sm:w-10 sm:h-10 bg-white/90 text-stone-900 hover:bg-stone-900 hover:text-white transition-all duration-300 flex items-center justify-center ${
-                            hoveredProduct === product.id
+                            hoveredProduct === product._id
                               ? "opacity-100 scale-100"
                               : "lg:opacity-0 lg:scale-90"
                           }`}

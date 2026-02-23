@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import heroImage1 from "../assets/images/hero_section.jpg";
 import heroImage2 from "../assets/images/hero_section2.jpg";
 import heroImage3 from "../assets/images/hero_section3.jpg";
+import { Link } from "react-router-dom";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Herosection() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -14,6 +16,7 @@ export function Herosection() {
       title: "Embrace Your Roots",
       description: "Where African heritage meets contemporary elegance",
       cta: "Shop Collection",
+      href: "/shop",
     },
     {
       image: heroImage2,
@@ -21,6 +24,7 @@ export function Herosection() {
       title: "Wear Your Culture",
       description: "Authentic prints, timeless designs, bold statements",
       cta: "Explore Now",
+      href: "/shop",
     },
     {
       image: heroImage3,
@@ -28,6 +32,7 @@ export function Herosection() {
       title: "Stories in Every Thread",
       description: "Traditional craftsmanship for the modern woman",
       cta: "Discover More",
+      href: "/shop",
     },
   ];
 
@@ -71,8 +76,8 @@ export function Herosection() {
           key={index}
           className={`absolute inset-0 transition-all duration-700 ease-in-out ${
             index === currentSlide
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-105"
+              ? "opacity-100 scale-100 z-10"
+              : "opacity-0 scale-105 z-0 pointer-events-none"
           }`}
         >
           {/* Background Image */}
@@ -139,25 +144,17 @@ export function Herosection() {
                     : "opacity-0 translate-y-10"
                 }`}
               >
-                <a
-                  href="#collection"
-                  className="group inline-flex items-center gap-3 px-8 py-4 border border-white/30 text-white text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-stone-900 transition-all duration-300"
+                <Link
+                  to={slide.href}
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="cursor-pointer group inline-flex items-center gap-3 px-8 py-4 border border-white/30 text-white text-sm tracking-[0.2em] uppercase hover:bg-white hover:text-stone-900 transition-all duration-300 pointer-events-auto"
                 >
                   {slide.cta}
-                  <svg
-                    className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
-                  </svg>
-                </a>
+                  <ArrowRight
+                    size={16}
+                    className="group-hover:translate-x-2 transition-transform duration-300"
+                  />
+                </Link>
               </div>
             </div>
           </div>
@@ -167,42 +164,24 @@ export function Herosection() {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 border border-white/30 text-white hover:bg-white hover:text-stone-900 transition-all duration-300 flex items-center justify-center group z-10"
+        className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 border border-white/30 text-white hover:bg-white hover:text-stone-900 transition-all duration-300 flex items-center justify-center group z-20"
         aria-label="Previous slide"
       >
-        <svg
-          className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
+        <ChevronLeft
+          size={20}
+          className="group-hover:-translate-x-1 transition-transform duration-300"
+        />
       </button>
 
       <button
         onClick={nextSlide}
-        className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 border border-white/30 text-white hover:bg-white hover:text-stone-900 transition-all duration-300 flex items-center justify-center group z-10"
+        className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 border border-white/30 text-white hover:bg-white hover:text-stone-900 transition-all duration-300 flex items-center justify-center group z-20"
         aria-label="Next slide"
       >
-        <svg
-          className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
+        <ChevronRight
+          size={20}
+          className="group-hover:translate-x-1 transition-transform duration-300"
+        />
       </button>
 
       {/* Slide Indicators */}

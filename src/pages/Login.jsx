@@ -20,7 +20,8 @@ export function Login() {
   const login = useAction(api.authActions.login);
 
   if (localStorage.getItem("userId")) {
-    return <Navigate to="/" replace />;
+    const role = localStorage.getItem("userRole");
+    return <Navigate to={role === "admin" ? "/admin" : "/"} replace />;
   }
 
   const handleChange = (e) => {
@@ -33,18 +34,19 @@ export function Login() {
     setLoading(true);
     const toastId = toast.loading("Logging in...");
     try {
-      const userId = await login({
+      const result = await login({
         email: formData.email,
         password: formData.password,
       });
-      localStorage.setItem("userId", userId);
+      localStorage.setItem("userId", result.userId);
+      localStorage.setItem("userRole", result.role);
       toast.update(toastId, {
         render: "Login successful!",
         type: "success",
         isLoading: false,
         autoClose: 2000,
       });
-      navigate("/");
+      navigate(result.role === "admin" ? "/admin" : "/");
     } catch (err) {
       setLoading(false);
       let errorMessage = "Login failed. Try again.";

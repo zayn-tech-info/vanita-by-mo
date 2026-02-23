@@ -19,7 +19,7 @@ export function useCart() {
 
     await addToCartMutation({
       sessionId,
-      productId: product.id,
+      productId: product._id || product.id,
       name: product.name,
       price: product.price,
       image: imageStr,

@@ -1,24 +1,15 @@
 import { useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { ProductQuickView } from "./ProductQuickView";
 import { useCart } from "../hooks/useCart";
-import product1 from "../assets/images/IMG_20260209_133744.jpg";
-import product2 from "../assets/images/IMG_20260209_133826.jpg";
-import product3 from "../assets/images/IMG_20260209_133904.jpg";
-import product4 from "../assets/images/IMG_20260209_133933.jpg";
-import product5 from "../assets/images/IMG_20260209_133952.jpg";
-import product6 from "../assets/images/IMG_20260209_134017.jpg";
-import product7 from "../assets/images/IMG_20260209_134036.jpg";
-import product8 from "../assets/images/IMG_20260209_134055.jpg";
-import product9 from "../assets/images/IMG_20260209_134116.jpg";
-import product10 from "../assets/images/IMG_20260209_134136.jpg";
-import product11 from "../assets/images/IMG_20260209_134156.jpg";
-import product12 from "../assets/images/IMG_20260209_134234.jpg";
 
 export function Products() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const { addToCart } = useCart();
+  const allProducts = useQuery(api.products.list) || [];
 
   const filters = [
     { id: "all", label: "All" },
@@ -28,121 +19,10 @@ export function Products() {
     { id: "accessories", label: "Accessories" },
   ];
 
-  const products = [
-    {
-      id: 1,
-      name: "Ankara Elegance Dress",
-      price: 189,
-      category: "dresses",
-      image: product1,
-      isNew: true,
-      isBestseller: false,
-    },
-    {
-      id: 2,
-      name: "Kente Wrap Blouse",
-      price: 129,
-      category: "tops",
-      image: product2,
-      isNew: false,
-      isBestseller: true,
-    },
-    {
-      id: 3,
-      name: "Adire Print Maxi",
-      price: 225,
-      category: "dresses",
-      image: product3,
-      isNew: true,
-      isBestseller: false,
-    },
-    {
-      id: 4,
-      name: "Tribal Fusion Set",
-      price: 275,
-      category: "sets",
-      image: product4,
-      isNew: false,
-      isBestseller: true,
-    },
-    {
-      id: 5,
-      name: "Mud Cloth Tunic",
-      price: 145,
-      category: "tops",
-      image: product5,
-      isNew: false,
-      isBestseller: false,
-    },
-    {
-      id: 6,
-      name: "Heritage Wrap Dress",
-      price: 198,
-      category: "dresses",
-      image: product6,
-      isNew: true,
-      isBestseller: false,
-    },
-    {
-      id: 7,
-      name: "Kitenge Co-ord Set",
-      price: 245,
-      category: "sets",
-      image: product7,
-      isNew: false,
-      isBestseller: true,
-    },
-    {
-      id: 8,
-      name: "Dashiki Crop Top",
-      price: 95,
-      category: "tops",
-      image: product8,
-      isNew: false,
-      isBestseller: false,
-    },
-    {
-      id: 9,
-      name: "Batik Flow Dress",
-      price: 210,
-      category: "dresses",
-      image: product9,
-      isNew: true,
-      isBestseller: false,
-    },
-    {
-      id: 10,
-      name: "Woven Heritage Top",
-      price: 115,
-      category: "tops",
-      image: product10,
-      isNew: false,
-      isBestseller: false,
-    },
-    {
-      id: 11,
-      name: "Safari Luxe Set",
-      price: 295,
-      category: "sets",
-      image: product11,
-      isNew: true,
-      isBestseller: true,
-    },
-    {
-      id: 12,
-      name: "Afro Chic Gown",
-      price: 320,
-      category: "dresses",
-      image: product12,
-      isNew: false,
-      isBestseller: true,
-    },
-  ];
-
   const filteredProducts =
     activeFilter === "all"
-      ? products
-      : products.filter((p) => p.category === activeFilter);
+      ? allProducts
+      : allProducts.filter((p) => p.category === activeFilter);
 
   return (
     <section id="collection" className="bg-[#faf9f7] py-20 lg:py-28">
@@ -189,9 +69,9 @@ export function Products() {
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
           {filteredProducts.map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="group relative"
-              onMouseEnter={() => setHoveredProduct(product.id)}
+              onMouseEnter={() => setHoveredProduct(product._id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
               {/* Product Image Container */}
@@ -205,7 +85,7 @@ export function Products() {
                 {/* Overlay on hover - desktop only */}
                 <div
                   className={`absolute inset-0 bg-black/20 transition-opacity duration-300 hidden lg:block ${
-                    hoveredProduct === product.id ? "opacity-100" : "opacity-0"
+                    hoveredProduct === product._id ? "opacity-100" : "opacity-0"
                   }`}
                 ></div>
 
@@ -225,7 +105,7 @@ export function Products() {
 
                 <div
                   className={`absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 flex gap-1 sm:gap-2 transition-all duration-300 ${
-                    hoveredProduct === product.id
+                    hoveredProduct === product._id
                       ? "opacity-100 translate-y-0"
                       : "lg:opacity-0 lg:translate-y-4"
                   }`}
@@ -257,7 +137,7 @@ export function Products() {
                 <button
                   onClick={() => setQuickViewProduct(product)}
                   className={`absolute top-2 sm:top-4 right-2 sm:right-4 w-7 h-7 sm:w-10 sm:h-10 bg-white/90 text-stone-900 hover:bg-stone-900 hover:text-white transition-all duration-300 flex items-center justify-center ${
-                    hoveredProduct === product.id
+                    hoveredProduct === product._id
                       ? "opacity-100 scale-100"
                       : "lg:opacity-0 lg:scale-90"
                   }`}

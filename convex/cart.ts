@@ -22,11 +22,11 @@ export const getCartCount = query({
   },
 });
 
- 
+
 export const addToCart = mutation({
   args: {
     sessionId: v.string(),
-    productId: v.number(),
+    productId: v.union(v.number(), v.string(), v.id("products")),
     name: v.string(),
     price: v.number(),
     image: v.string(),
@@ -69,7 +69,7 @@ export const addToCart = mutation({
   },
 });
 
- 
+
 export const updateQuantity = mutation({
   args: {
     id: v.id("cart"),
@@ -85,7 +85,7 @@ export const updateQuantity = mutation({
   },
 });
 
- 
+
 export const removeFromCart = mutation({
   args: { id: v.id("cart") },
   handler: async (ctx, args) => {
@@ -93,7 +93,7 @@ export const removeFromCart = mutation({
   },
 });
 
- 
+
 export const clearCart = mutation({
   args: { sessionId: v.string() },
   handler: async (ctx, args) => {

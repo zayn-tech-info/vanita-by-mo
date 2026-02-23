@@ -4,6 +4,10 @@ import { Shop } from "./pages/Shop";
 import { Cart } from "./pages/Cart";
 import { Signup } from "./pages/Signup";
 import { Login } from "./pages/Login";
+import { AdminLayout } from "./pages/admin/AdminLayout";
+import { Dashboard } from "./pages/admin/Dashboard";
+import { AdminProducts } from "./pages/admin/AdminProducts";
+import { AdminOrders } from "./pages/admin/AdminOrders";
 
 export function App() {
   return (
@@ -14,6 +18,13 @@ export function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrders />} />
+        </Route>
       </Routes>
     </div>
   );

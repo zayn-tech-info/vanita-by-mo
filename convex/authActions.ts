@@ -27,7 +27,7 @@ export const signup = action({
 
 export const login = action({
   args: { email: v.string(), password: v.string() },
-  handler: async (ctx, args): Promise<Id<"user">> => {
+  handler: async (ctx, args): Promise<{ userId: Id<"user">; role: string }> => {
     const user = await ctx.runMutation(api.auth.getUserByEmail, { email: args.email });
     if (!user) {
       throw new ConvexError("Invalid email or password");
@@ -36,6 +36,6 @@ export const login = action({
     if (!isMatch) {
       throw new ConvexError("Invalid email or password");
     }
-    return user._id;
+    return { userId: user._id, role: user.role || "customer" };
   },
 });

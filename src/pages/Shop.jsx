@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { ProductQuickView } from "../components/ProductQuickView";
@@ -13,18 +14,55 @@ import {
 import heroImage from "../assets/images/hero_section3.jpg";
 
 export function Shop() {
-  // Filter state
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [searchParams] = useSearchParams();
+
+  const [activeCategory, setActiveCategory] = useState(
+    searchParams.get("category") || "all",
+  );
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 500]);
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "featured");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 9;
   const { addToCart } = useCart();
+
+  useEffect(() => {
+    const category = searchParams.get("category");
+    if (category) {
+      setActiveCategory(category);
+    } else {
+      setActiveCategory("all");
+    }
+
+    const sort = searchParams.get("sort");
+    if (sort) {
+      setSortBy(sort);
+    } else {
+      setSortBy("featured");
+    }
+    setCurrentPage(1);
+  }, [searchParams]);
+
+  // Handle page change with smooth scroll
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    const element = document.getElementById("shop-content");
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Toggle size
   const toggleSize = (size) => {
@@ -194,7 +232,7 @@ export function Shop() {
             <button
               key={size}
               onClick={() => toggleSize(size)}
-              className={`py-2 text-xs tracking-[0.1em] border transition-all duration-200 ${
+              className={`py-2 text-xs tracking-widest border transition-all duration-200 ${
                 selectedSizes.includes(size)
                   ? "bg-stone-900 text-white border-stone-900"
                   : "bg-transparent text-stone-600 border-stone-300 hover:border-stone-900"
@@ -305,7 +343,10 @@ export function Shop() {
       </section>
 
       {/* Main Content */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      <section
+        id="shop-content"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16"
+      >
         {/* Top Bar - Results count, Sort, Mobile Filter Toggle */}
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-stone-200">
           <div className="flex items-center gap-4">
@@ -351,7 +392,7 @@ export function Shop() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-stone-300 bg-transparent text-stone-700 text-sm tracking-wide focus:outline-none focus:border-amber-700 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_0.5rem_center]"
+              className="px-4 py-2 border border-stone-300 bg-transparent text-stone-700 text-sm tracking-wide focus:outline-none focus:border-amber-700 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E')] bg-no-repeat bg-position-[right_0.5rem_center]"
             >
               {sortOptions.map((opt) => (
                 <option key={opt.id} value={opt.id}>
@@ -573,7 +614,7 @@ export function Shop() {
                   <div className="flex items-center justify-center gap-2 mt-12">
                     <button
                       onClick={() =>
-                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                        handlePageChange(Math.max(1, currentPage - 1))
                       }
                       disabled={currentPage === 1}
                       className="w-10 h-10 border border-stone-300 flex items-center justify-center text-stone-600 hover:border-stone-900 hover:text-stone-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -598,7 +639,7 @@ export function Shop() {
                       (page) => (
                         <button
                           key={page}
-                          onClick={() => setCurrentPage(page)}
+                          onClick={() => handlePageChange(page)}
                           className={`w-10 h-10 text-sm tracking-wide transition-all duration-200 ${
                             currentPage === page
                               ? "bg-stone-900 text-white"
@@ -612,7 +653,7 @@ export function Shop() {
 
                     <button
                       onClick={() =>
-                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                        handlePageChange(Math.min(totalPages, currentPage + 1))
                       }
                       disabled={currentPage === totalPages}
                       className="w-10 h-10 border border-stone-300 flex items-center justify-center text-stone-600 hover:border-stone-900 hover:text-stone-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"

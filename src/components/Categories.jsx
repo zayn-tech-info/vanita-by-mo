@@ -2,6 +2,7 @@ import categoryImg1 from "../assets/images/IMG_20260209_133744.jpg";
 import categoryImg2 from "../assets/images/IMG_20260209_133904.jpg";
 import categoryImg3 from "../assets/images/IMG_20260209_134017.jpg";
 import categoryImg4 from "../assets/images/IMG_20260209_134136.jpg";
+import { Link } from "react-router-dom";
 
 export function Categories() {
   const categories = [
@@ -11,6 +12,7 @@ export function Categories() {
       description: "Elegant silhouettes",
       image: categoryImg1,
       count: 24,
+      href: "/shop?category=dresses",
     },
     {
       id: 2,
@@ -18,6 +20,7 @@ export function Categories() {
       description: "Statement pieces",
       image: categoryImg2,
       count: 18,
+      href: "/shop?category=tops",
     },
     {
       id: 3,
@@ -25,6 +28,7 @@ export function Categories() {
       description: "Coordinated looks",
       image: categoryImg3,
       count: 12,
+      href: "/shop?category=sets",
     },
     {
       id: 4,
@@ -32,6 +36,7 @@ export function Categories() {
       description: "Finishing touches",
       image: categoryImg4,
       count: 32,
+      href: "/shop?category=accessories",
     },
   ];
 
@@ -61,10 +66,10 @@ export function Categories() {
         {/* Categories Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
-            <a
+            <Link
               key={category.id}
-              href="#"
-              className="group relative aspect-[3/4] overflow-hidden"
+              to={category.href}
+              className="group relative aspect-3/4 overflow-hidden"
             >
               {/* Background Image */}
               <img
@@ -111,7 +116,7 @@ export function Categories() {
 
               {/* Hover Border Effect */}
               <div className="absolute inset-0 border-2 border-transparent group-hover:border-amber-400/50 transition-all duration-500"></div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

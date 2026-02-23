@@ -9,12 +9,10 @@ export function Navbar() {
   const { cartCount } = useCart();
 
   const shopCategories = [
-    { name: "Dresses", href: "/shop" },
-    { name: "Tops & Blouses", href: "/shop" },
-    { name: "Pants & Trousers", href: "/shop" },
-    { name: "Skirts", href: "/shop" },
-    { name: "Loungewear", href: "/shop" },
-    { name: "Accessories", href: "/shop" },
+    { name: "Dresses", href: "/shop?category=dresses" },
+    { name: "Tops & Blouses", href: "/shop?category=tops" },
+    { name: "Sets & Co-ords", href: "/shop?category=sets" },
+    { name: "Accessories", href: "/shop?category=accessories" },
   ];
 
   return (
@@ -68,26 +66,28 @@ export function Navbar() {
                 </span>
                 <span className="w-4 h-[0.5px] bg-amber-600/60"></span>
               </div>
- 
+
               <span className="w-8 h-1px bg-linear-to-r from-transparent via-stone-400 to-transparent mt-2 group-hover:w-12 transition-all duration-500"></span>
             </a>
 
             <div className="hidden lg:flex items-center space-x-8">
-              <a
-                href="#"
+              <Link
+                to="/shop?sort=newest"
                 className="text-sm tracking-widest text-stone-700 hover:text-amber-800 transition-colors duration-300 uppercase font-light relative group"
               >
                 New Arrivals
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-amber-800 group-hover:w-full transition-all duration-300"></span>
-              </a>
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-amber-800 group-hover:w-full transition-all duration-300"></span>
+              </Link>
 
-              {/* Shop All Dropdown */}
               <div
                 className="relative"
                 onMouseEnter={() => setIsShopOpen(true)}
                 onMouseLeave={() => setIsShopOpen(false)}
               >
-                <button className="flex items-center text-sm tracking-widest text-stone-700 hover:text-amber-800 transition-colors duration-300 uppercase font-light group">
+                <Link
+                  to="/shop"
+                  className="flex items-center text-sm tracking-widest text-stone-700 hover:text-amber-800 transition-colors duration-300 uppercase font-light group"
+                >
                   Shop All
                   <svg
                     className={`ml-1 w-3 h-3 transition-transform duration-300 ${isShopOpen ? "rotate-180" : ""}`}
@@ -102,12 +102,12 @@ export function Navbar() {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-amber-800 group-hover:w-full transition-all duration-300"></span>
-                </button>
+                  <span className="absolute -bottom-1 left-0 w-0 h-1px bg-amber-800 group-hover:w-full transition-all duration-300"></span>
+                </Link>
 
                 {/* Dropdown menu */}
                 <div
-                  className={`absolute top-full left-0 mt-2 w-56 bg-white shadow-xl border border-stone-100 transition-all duration-300 ${
+                  className={`absolute top-full left-0 mt-2 w-56 bg-white shadow-xl border border-stone-100 transition-all duration-300 z-50 ${
                     isShopOpen
                       ? "opacity-100 visible translate-y-0"
                       : "opacity-0 invisible -translate-y-2"
@@ -115,41 +115,41 @@ export function Navbar() {
                 >
                   <div className="py-3">
                     {shopCategories.map((category) => (
-                      <a
+                      <Link
                         key={category.name}
-                        href={category.href}
+                        to={category.href}
                         className="block px-6 py-2.5 text-sm text-stone-600 hover:text-amber-800 hover:bg-stone-50 transition-colors tracking-wide"
                       >
                         {category.name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
               </div>
 
               <a
-                href="#"
+                href="/#our-craft"
                 className="text-sm tracking-widest text-stone-700 hover:text-amber-800 transition-colors duration-300 uppercase font-light relative group"
               >
-                Why Linen
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-amber-800 group-hover:w-full transition-all duration-300"></span>
+                Our Craft
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-amber-800 group-hover:w-full transition-all duration-300"></span>
               </a>
 
               <a
-                href="#"
+                href="/#our-story"
                 className="text-sm tracking-widest text-stone-700 hover:text-amber-800 transition-colors duration-300 uppercase font-light relative group"
               >
                 Our Story
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-amber-800 group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-amber-800 group-hover:w-full transition-all duration-300"></span>
               </a>
 
-              <a
-                href="#"
+              <Link
+                to="/blog"
                 className="text-sm tracking-widest text-stone-700 hover:text-amber-800 transition-colors duration-300 uppercase font-light relative group"
               >
                 Blog
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-amber-800 group-hover:w-full transition-all duration-300"></span>
-              </a>
+                <span className="absolute -bottom-1 left-0 w-0 h-px bg-amber-800 group-hover:w-full transition-all duration-300"></span>
+              </Link>
             </div>
 
             {/* Right Icons */}
@@ -175,7 +175,6 @@ export function Navbar() {
                 </svg>
               </button>
 
-              
               <Link
                 to="/login"
                 className="hidden sm:block p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
@@ -264,12 +263,12 @@ export function Navbar() {
           }`}
         >
           <div className="px-4 py-6 space-y-4">
-            <a
-              href="#"
+            <Link
+              to="/shop?sort=newest"
               className="block text-sm tracking-widest text-stone-700 hover:text-amber-800 uppercase font-light py-2"
             >
               New Arrivals
-            </a>
+            </Link>
             <div className="space-y-2">
               <button
                 onClick={() => setIsShopOpen(!isShopOpen)}
@@ -293,35 +292,35 @@ export function Navbar() {
               {isShopOpen && (
                 <div className="pl-4 space-y-2 border-l-2 border-amber-200">
                   {shopCategories.map((category) => (
-                    <a
+                    <Link
                       key={category.name}
-                      href={category.href}
+                      to={category.href}
                       className="block text-sm text-stone-600 hover:text-amber-800 py-1.5 tracking-wide"
                     >
                       {category.name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
             </div>
             <a
-              href="#"
+              href="/#our-craft"
               className="block text-sm tracking-widest text-stone-700 hover:text-amber-800 uppercase font-light py-2"
             >
-              Why Linen
+              Our Craft
             </a>
             <a
-              href="#"
+              href="/#our-story"
               className="block text-sm tracking-widest text-stone-700 hover:text-amber-800 uppercase font-light py-2"
             >
               Our Story
             </a>
-            <a
-              href="#"
+            <Link
+              to="/blog"
               className="block text-sm tracking-widest text-stone-700 hover:text-amber-800 uppercase font-light py-2"
             >
               Blog
-            </a>
+            </Link>
           </div>
         </div>
       </nav>

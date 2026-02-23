@@ -2,13 +2,16 @@ import storyImg from "../assets/images/hero_section2.jpg";
 
 export function About() {
   return (
-    <section className="bg-[#faf9f7] py-20 lg:py-28 overflow-hidden">
+    <section
+      id="our-story"
+      className="bg-[#faf9f7] py-20 lg:py-28 overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Image Side */}
           <div className="relative">
             {/* Main Image */}
-            <div className="relative aspect-[4/5] overflow-hidden">
+            <div className="relative aspect-4/5 overflow-hidden">
               <img
                 src={storyImg}
                 alt="Our story - African fashion heritage"

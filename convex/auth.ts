@@ -50,3 +50,14 @@ export const insertUser = mutation({
     return newUser;
   },
 });
+
+export const getUserByEmail = mutation({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("user")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .unique();
+    return user;
+  },
+});

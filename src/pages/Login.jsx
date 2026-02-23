@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Footer } from "../components/Footer";
+import { useAction } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Loader2 } from "lucide-react";
+import { ConvexError } from "convex/values";
+import { toast } from "react-toastify";
 
 export function Login() {
   const [formData, setFormData] = useState({
@@ -9,15 +14,62 @@ export function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const login = useAction(api.authActions.login);
+
+  if (localStorage.getItem("userId")) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login submitted:", formData);
+    setLoading(true);
+    const toastId = toast.loading("Logging in...");
+    try {
+      const userId = await login({
+        email: formData.email,
+        password: formData.password,
+      });
+      localStorage.setItem("userId", userId);
+      toast.update(toastId, {
+        render: "Login successful!",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
+      navigate("/");
+    } catch (err) {
+      setLoading(false);
+      let errorMessage = "Login failed. Try again.";
+      if (err instanceof ConvexError) {
+        errorMessage = err.data;
+      } else if (err.data !== undefined) {
+        errorMessage = err.data;
+      } else if (
+        err.message &&
+        err.message.includes("Uncaught ConvexError: ")
+      ) {
+        errorMessage = err.message
+          .split("Uncaught ConvexError: ")[1]
+          .split("at handler")[0]
+          .trim();
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      toast.update(toastId, {
+        render: errorMessage,
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    }
   };
 
   const isFieldActive = (fieldName) => {
@@ -25,18 +77,15 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] flex flex-col">      
+    <div className="min-h-screen bg-[#faf9f7] flex flex-col">
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
-          {/* Card */}
           <div className="bg-white rounded-lg shadow-lg p-8 relative">
-            {/* Header */}
             <h1 className="text-3xl font-light tracking-wide text-stone-800 text-center mb-8 italic">
               Log in
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email Field */}
               <div className="relative">
                 <label
                   htmlFor="email"
@@ -59,8 +108,6 @@ export function Login() {
                   className="w-full px-3 pt-5 pb-2 border border-stone-200 rounded focus:border-amber-600 focus:outline-none text-sm tracking-wide bg-transparent transition-colors duration-200"
                 />
               </div>
-
-              {/* Password Field */}
               <div className="relative">
                 <label
                   htmlFor="password"
@@ -127,16 +174,18 @@ export function Login() {
                 </button>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full py-3 bg-amber-600 text-white text-sm tracking-[0.15em] uppercase font-medium rounded hover:bg-amber-700 transition-colors duration-300"
+                className="cursor-pointer w-full space-x-4 flex justify-center items-center mx-auto py-3 bg-amber-600 text-white text-sm tracking-[0.15em] uppercase font-medium rounded hover:bg-amber-700 transition-colors duration-300"
               >
-                Log In
+                <span>
+                  {loading && (
+                    <Loader2 className="inline-block mr-2 h-6 w-4 animate-spin" />
+                  )}
+                </span>
+                <span>{loading ? "Logging in" : "Log In"}</span>
               </button>
             </form>
-
-            {/* Signup Link */}
             <p className="text-center mt-6 text-sm text-stone-500">
               Don't have an account?{" "}
               <Link
@@ -146,8 +195,6 @@ export function Login() {
                 Sign Up
               </Link>
             </p>
-
-            {/* Divider */}
             <div className="flex items-center mt-6">
               <div className="flex-1 border-t border-stone-200"></div>
               <span className="px-4 text-sm text-stone-400">or</span>

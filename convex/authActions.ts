@@ -24,3 +24,18 @@ export const signup = action({
     return newUser;
   },
 });
+
+export const login = action({
+  args: { email: v.string(), password: v.string() },
+  handler: async (ctx, args): Promise<Id<"user">> => {
+    const user = await ctx.runMutation(api.auth.getUserByEmail, { email: args.email });
+    if (!user) {
+      throw new ConvexError("Invalid email or password");
+    }
+    const isMatch = await bcrypt.compare(args.password, user.password);
+    if (!isMatch) {
+      throw new ConvexError("Invalid email or password");
+    }
+    return user._id;
+  },
+});

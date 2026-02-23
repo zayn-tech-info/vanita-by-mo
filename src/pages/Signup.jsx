@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Footer } from "../components/Footer";
 import { useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -19,7 +19,12 @@ export function Signup() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const signup = useAction(api.authActions.signup);
+
+  if (localStorage.getItem("userId")) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,16 +38,17 @@ export function Signup() {
     setLoading(true);
     const toastId = toast.loading("Signing up...");
     try {
-      await signup(formData);
+      const userId = await signup(formData);
+      localStorage.setItem("userId", userId);
       setLoading(false);
       toast.update(toastId, {
-        render: "Signup successful! You can now log in.",
+        render: "Signup successful! You are now logged in.",
         type: "success",
         isLoading: false,
-        autoClose: 4000,
+        autoClose: 2000,
       });
-      setSuccess("Signup successful! You can now log in.");
-      setFormData({ name: "", email: "", password: "" });
+      setSuccess("Signup successful! You will be redirected.");
+      navigate("/");
     } catch (err) {
       setLoading(false);
       let errorMessage = "Signup failed. Try again.";

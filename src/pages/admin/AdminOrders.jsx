@@ -8,6 +8,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ShoppingCart,
   Eye,
   X,
@@ -57,6 +59,7 @@ export function AdminOrders() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [viewingOrder, setViewingOrder] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [currentItemIndex, setCurrentItemIndex] = useState(0);
 
   const userId = localStorage.getItem("userId");
 
@@ -203,7 +206,10 @@ export function AdminOrders() {
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-end">
                           <button
-                            onClick={() => setViewingOrder(order)}
+                            onClick={() => {
+                              setCurrentItemIndex(0);
+                              setViewingOrder(order);
+                            }}
                             className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
                             title="View details"
                           >
@@ -271,46 +277,107 @@ export function AdminOrders() {
                 </div>
               </div>
 
-              {/* Items */}
+              {/* Items Carousel */}
               <div>
                 <h3 className="text-xs tracking-[0.15em] uppercase text-stone-500 font-light mb-3">
                   Items ({viewingOrder.items.length})
                 </h3>
-                <div className="space-y-3">
-                  {viewingOrder.items.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 bg-white p-3 rounded-lg border border-stone-100"
-                    >
-                      <div className="w-12 h-14 rounded bg-stone-100 overflow-hidden shrink-0">
-                        {item.image && (
+
+                {(() => {
+                  const item = viewingOrder.items[currentItemIndex];
+                  const totalItems = viewingOrder.items.length;
+                  return (
+                    <div className="bg-white rounded-lg border border-stone-100 overflow-hidden">
+                      {/* Image with prev/next buttons */}
+                      {item.image && (
+                        <div className="relative w-full h-[50vh] bg-stone-50 overflow-hidden">
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-stone-800 font-light truncate">
-                          {item.name}
-                        </p>
-                        <div className="flex gap-2 text-xs text-stone-400 mt-0.5">
-                          {item.size && <span>Size: {item.size}</span>}
-                          {item.color && <span>Color: {item.color}</span>}
+
+                          {/* Prev / Next Buttons */}
+                          {totalItems > 1 && (
+                            <>
+                              <button
+                                onClick={() =>
+                                  setCurrentItemIndex((prev) =>
+                                    prev === 0 ? totalItems - 1 : prev - 1,
+                                  )
+                                }
+                                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-stone-700 hover:text-stone-900 transition-all"
+                              >
+                                <ChevronLeft size={20} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setCurrentItemIndex((prev) =>
+                                    prev === totalItems - 1 ? 0 : prev + 1,
+                                  )
+                                }
+                                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-stone-700 hover:text-stone-900 transition-all"
+                              >
+                                <ChevronRight size={20} />
+                              </button>
+
+                              {/* Counter badge */}
+                              <span className="absolute top-3 right-3 px-2.5 py-1 bg-black/50 text-white text-xs rounded-full">
+                                {currentItemIndex + 1} / {totalItems}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Product Details */}
+                      <div className="p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm text-stone-800 font-light">
+                            {item.name}
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-xs text-stone-400 mt-1">
+                            {item.size && (
+                              <span className="px-2 py-0.5 bg-stone-50 border border-stone-100 rounded">
+                                Size: {item.size}
+                              </span>
+                            )}
+                            {item.color && (
+                              <span className="px-2 py-0.5 bg-stone-50 border border-stone-100 rounded">
+                                Color: {item.color}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-medium text-stone-800">
+                            ${item.price}
+                          </p>
+                          <p className="text-xs font-medium text-stone-400">
+                            x{item.quantity}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm text-stone-800 font-light">
-                          ${item.price}
-                        </p>
-                        <p className="text-xs text-stone-400">
-                          x{item.quantity}
-                        </p>
-                      </div>
+
+                      {/* Dot indicators */}
+                      {totalItems > 1 && (
+                        <div className="flex items-center justify-center gap-2 pb-4">
+                          {viewingOrder.items.map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setCurrentItemIndex(i)}
+                              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                                i === currentItemIndex
+                                  ? "bg-amber-600 w-4"
+                                  : "bg-stone-300 hover:bg-stone-400"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Price Breakdown */}

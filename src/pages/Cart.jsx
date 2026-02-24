@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { useCart } from "../hooks/useCart";
+import { toast } from "react-toastify";
 
 export function Cart() {
   const {
@@ -368,7 +369,10 @@ export function Cart() {
                       placeholder="Promo code"
                       className="flex-1 px-4 py-2.5 border border-stone-300 bg-transparent text-sm text-stone-700 tracking-wide placeholder:text-stone-400 focus:outline-none focus:border-amber-700"
                     />
-                    <button className="px-5 py-2.5 bg-stone-900 text-white text-xs tracking-[0.15em] uppercase hover:bg-stone-800 transition-colors shrink-0">
+                    <button
+                      onClick={() => toast.info("Promo codes coming soon!")}
+                      className="px-5 py-2.5 bg-stone-900 text-white text-xs tracking-[0.15em] uppercase hover:bg-stone-800 transition-colors shrink-0"
+                    >
                       Apply
                     </button>
                   </div>
@@ -385,9 +389,12 @@ export function Cart() {
                 </div>
 
                 {/* Checkout Button */}
-                <button className="w-full py-4 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-amber-700 transition-colors duration-300 mb-4">
+                <Link
+                  to="/checkout"
+                  className="block w-full py-4 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-amber-700 transition-colors duration-300 mb-4 text-center"
+                >
                   Proceed to Checkout
-                </button>
+                </Link>
 
                 {/* Trust Badges */}
                 <div className="flex items-center justify-center gap-4 pt-4 border-t border-stone-100">

@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useSessionId } from "./useSessionId";
+import { toast } from "react-toastify";
 
 export function useCart() {
   const sessionId = useSessionId();
@@ -28,6 +29,8 @@ export function useCart() {
       size: size || undefined,
       color: color || undefined,
     });
+
+    toast.success(`${product.name} added to cart!`);
   };
 
   const updateQuantity = async (id, quantity) => {

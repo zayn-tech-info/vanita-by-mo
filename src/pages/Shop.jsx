@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Navbar } from "../components/Navbar";
@@ -138,10 +138,16 @@ export function Shop() {
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];
 
-    // Search filter
+    // Search filter — matches name, category, and description
     if (searchQuery) {
       const lowerQ = searchQuery.toLowerCase();
-      result = result.filter((p) => p.name.toLowerCase().includes(lowerQ));
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(lowerQ) ||
+          p.category.toLowerCase().includes(lowerQ) ||
+          (p.description && p.description.toLowerCase().includes(lowerQ)) ||
+          (p.material && p.material.toLowerCase().includes(lowerQ)),
+      );
     }
 
     // Category filter
@@ -398,6 +404,27 @@ export function Shop() {
         id="shop-content"
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16"
       >
+        {/* Search Results Banner */}
+        {searchQuery && (
+          <div className="mb-8 p-6 bg-stone-50 border border-stone-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-sm text-stone-500 font-light tracking-wide mb-1">
+                Search Results
+              </p>
+              <h2 className="text-2xl text-stone-800 font-light tracking-wide">
+                Showing results for "
+                <span className="font-medium">{searchQuery}</span>"
+              </h2>
+            </div>
+            <button
+              onClick={() => setSearchQuery("")}
+              className="px-6 py-2 border border-stone-300 text-stone-700 text-xs tracking-[0.15em] uppercase hover:border-stone-900 hover:text-stone-900 transition-all duration-300"
+            >
+              Clear Search
+            </button>
+          </div>
+        )}
+
         {/* Top Bar - Results count, Sort, Mobile Filter Toggle */}
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-stone-200">
           <div className="flex items-center gap-4">
@@ -657,14 +684,23 @@ export function Shop() {
                       </div>
 
                       {/* Product Info */}
-                      <div className="text-center">
+                      <Link
+                        to={`/product/${product._id}`}
+                        className="block text-center"
+                      >
                         <h3 className="text-stone-800 font-light tracking-wide mb-1 sm:mb-2 text-xs sm:text-base group-hover:text-amber-800 transition-colors duration-300">
                           {product.name}
                         </h3>
                         <p className="text-amber-700 font-light tracking-widest text-xs sm:text-base">
                           ${product.price}
                         </p>
-                      </div>
+                      </Link>
+                      <Link
+                        to={`/product/${product._id}`}
+                        className="block mx-auto mt-2 sm:mt-3 px-4 sm:px-6 py-1.5 sm:py-2 border border-stone-300 text-[9px] sm:text-xs tracking-[0.15em] uppercase text-stone-600 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-300 text-center"
+                      >
+                        View Details
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -738,9 +774,10 @@ export function Shop() {
               </>
             ) : (
               /* Empty State */
-              <div className="flex flex-col items-center justify-center py-20">
+              /* Empty State */
+              <div className="flex flex-col items-center justify-center py-24 px-4 text-center border font-light border-stone-100 bg-stone-50/50">
                 <svg
-                  className="w-16 h-16 text-stone-300 mb-6"
+                  className="w-12 h-12 text-stone-300 mb-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -752,18 +789,39 @@ export function Shop() {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-                <h3 className="text-xl font-light text-stone-700 tracking-wide mb-2">
-                  No products found
-                </h3>
-                <p className="text-stone-500 font-light tracking-wide text-sm mb-6">
-                  Try adjusting your filters to find what you&#39;re looking for
-                </p>
-                <button
-                  onClick={clearFilters}
-                  className="px-6 py-2.5 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-stone-800 transition-colors duration-300"
-                >
-                  Clear All Filters
-                </button>
+                {searchQuery ? (
+                  <>
+                    <h3 className="text-xl text-stone-800 tracking-wide mb-3">
+                      No results for "{searchQuery}"
+                    </h3>
+                    <p className="text-stone-500 tracking-wide text-sm mb-8 max-w-sm mx-auto">
+                      We couldn't find any products matching your search. Try
+                      checking for typos or searching with different keywords.
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="px-8 py-3.5 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-amber-700 transition-colors duration-300"
+                    >
+                      Clear Search
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xl text-stone-800 tracking-wide mb-3">
+                      No products found
+                    </h3>
+                    <p className="text-stone-500 tracking-wide text-sm mb-8 max-w-sm mx-auto">
+                      Try adjusting your filters or category to find what you're
+                      looking for.
+                    </p>
+                    <button
+                      onClick={clearFilters}
+                      className="px-8 py-3.5 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-amber-700 transition-colors duration-300"
+                    >
+                      Clear All Filters
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -176,7 +176,7 @@ export function Navbar() {
               </button>
 
               <Link
-                to="/login"
+                to={localStorage.getItem("userId") ? "/my-orders" : "/login"}
                 className="hidden sm:block p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
                 aria-label="Account"
               >

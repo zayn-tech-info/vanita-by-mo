@@ -164,6 +164,12 @@ export function OrderConfirmation() {
             />
           </Link>
           <Link
+            to="/my-orders"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-amber-600 text-amber-700 text-xs tracking-[0.15em] uppercase hover:bg-amber-600 hover:text-white transition-all duration-300"
+          >
+            View My Orders
+          </Link>
+          <Link
             to="/"
             className="inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-stone-300 text-stone-700 text-xs tracking-[0.15em] uppercase hover:border-stone-900 hover:text-stone-900 transition-all duration-300"
           >

@@ -358,8 +358,6 @@ export function AdminOrders() {
                           </p>
                         </div>
                       </div>
-
-                      {/* Dot indicators */}
                       {totalItems > 1 && (
                         <div className="flex items-center justify-center gap-2 pb-4">
                           {viewingOrder.items.map((_, i) => (

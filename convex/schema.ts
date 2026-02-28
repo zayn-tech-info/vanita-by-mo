@@ -61,11 +61,14 @@ export default defineSchema({
     shippingCost: v.number(),
     total: v.number(),
     status: v.union(
+      v.literal("awaiting_payment"),
       v.literal("pending"),
       v.literal("processing"),
       v.literal("shipped"),
       v.literal("delivered"),
       v.literal("cancelled")
     ),
+    stripeSessionId: v.optional(v.string()),
+    paymentIntentId: v.optional(v.string()),
   }),
 });

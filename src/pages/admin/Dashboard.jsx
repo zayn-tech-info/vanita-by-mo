@@ -19,8 +19,9 @@ export function Dashboard() {
   const totalProducts = products.length;
   const totalOrders = orders.length;
   const totalRevenue = orders
-    .filter((o) => o.status !== "cancelled")
+    .filter((o) => o.status !== "cancelled" && o.status !== "awaiting_payment")
     .reduce((sum, o) => sum + o.total, 0);
+  const awaitingPaymentOrders = orders.filter((o) => o.status === "awaiting_payment").length;
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const processingOrders = orders.filter(
     (o) => o.status === "processing",
@@ -63,6 +64,11 @@ export function Dashboard() {
   const recentOrders = orders.slice(0, 8);
 
   const statusConfig = {
+    awaiting_payment: {
+      label: "Awaiting payment",
+      icon: Clock,
+      color: "text-amber-600 bg-amber-50",
+    },
     pending: {
       label: "Pending",
       icon: Clock,
@@ -89,6 +95,13 @@ export function Dashboard() {
       color: "text-red-600 bg-red-50",
     },
   };
+
+  const getStatusConfig = (status) =>
+    statusConfig[status] ?? {
+      label: status ?? "Unknown",
+      icon: AlertCircle,
+      color: "text-stone-600 bg-stone-50",
+    };
 
   return (
     <div className="space-y-8">
@@ -138,6 +151,11 @@ export function Dashboard() {
           </h2>
           <div className="space-y-3">
             {[
+              {
+                label: "Awaiting payment",
+                count: awaitingPaymentOrders,
+                color: "bg-amber-500",
+              },
               {
                 label: "Pending",
                 count: pendingOrders,
@@ -209,7 +227,7 @@ export function Dashboard() {
                 </thead>
                 <tbody className="divide-y divide-stone-50">
                   {recentOrders.map((order) => {
-                    const config = statusConfig[order.status];
+                    const config = getStatusConfig(order.status);
                     const StatusIcon = config.icon;
                     return (
                       <tr key={order._id} className="hover:bg-stone-50/50">

@@ -17,6 +17,11 @@ import {
 import { toast } from "react-toastify";
 
 const statusConfig = {
+  awaiting_payment: {
+    label: "Awaiting payment",
+    icon: Clock,
+    color: "text-amber-600 bg-amber-50 border-amber-200",
+  },
   pending: {
     label: "Pending",
     icon: Clock,
@@ -45,12 +50,20 @@ const statusConfig = {
 };
 
 const statusOptions = [
+  "awaiting_payment",
   "pending",
   "processing",
   "shipped",
   "delivered",
   "cancelled",
 ];
+
+const getStatusConfig = (status) =>
+  statusConfig[status] ?? {
+    label: status ?? "Unknown",
+    icon: AlertCircle,
+    color: "text-stone-600 bg-stone-50 border-stone-200",
+  };
 
 export function AdminOrders() {
   const orders = useQuery(api.orders.listAll) || [];
@@ -84,6 +97,7 @@ export function AdminOrders() {
   // Status counts for filter tabs
   const counts = {
     all: orders.length,
+    awaiting_payment: orders.filter((o) => o.status === "awaiting_payment").length,
     pending: orders.filter((o) => o.status === "pending").length,
     processing: orders.filter((o) => o.status === "processing").length,
     shipped: orders.filter((o) => o.status === "shipped").length,
@@ -159,7 +173,7 @@ export function AdminOrders() {
               </thead>
               <tbody className="divide-y divide-stone-50">
                 {filtered.map((order) => {
-                  const config = statusConfig[order.status];
+                  const config = getStatusConfig(order.status);
                   const StatusIcon = config.icon;
                   return (
                     <tr

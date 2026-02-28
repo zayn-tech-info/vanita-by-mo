@@ -14,7 +14,155 @@ async function requireAdmin(ctx: any, userId: Id<"user">) {
 
 //  CUSTOMER MUTATIONS
 
-// Place a new order
+// Create a pending order before redirecting to Stripe (used by payments action)
+export const createPendingOrder = mutation({
+  args: {
+    userId: v.optional(v.id("user")),
+    sessionId: v.string(),
+    items: v.array(
+      v.object({
+        productId: v.union(v.number(), v.string(), v.id("products")),
+        name: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        size: v.optional(v.string()),
+        color: v.optional(v.string()),
+        image: v.string(),
+      })
+    ),
+    subtotal: v.number(),
+    shippingCost: v.number(),
+    total: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("orders", {
+      userId: args.userId,
+      customerName: "Pending",
+      customerEmail: "pending@stripe",
+      shippingAddress: {
+        street: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        country: "",
+      },
+      items: args.items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total: args.total,
+      status: "awaiting_payment",
+    });
+  },
+});
+
+// Create pending order with shipping (for embedded Payment Element flow)
+export const createPendingOrderWithShipping = mutation({
+  args: {
+    userId: v.optional(v.id("user")),
+    sessionId: v.string(),
+    customerName: v.string(),
+    customerEmail: v.string(),
+    shippingAddress: v.object({
+      street: v.string(),
+      city: v.string(),
+      state: v.string(),
+      zipCode: v.string(),
+      country: v.string(),
+    }),
+    items: v.array(
+      v.object({
+        productId: v.union(v.number(), v.string(), v.id("products")),
+        name: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        size: v.optional(v.string()),
+        color: v.optional(v.string()),
+        image: v.string(),
+      })
+    ),
+    subtotal: v.number(),
+    shippingCost: v.number(),
+    total: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("orders", {
+      userId: args.userId,
+      customerName: args.customerName,
+      customerEmail: args.customerEmail,
+      shippingAddress: args.shippingAddress,
+      items: args.items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total: args.total,
+      status: "awaiting_payment",
+    });
+  },
+});
+
+// Store Stripe PaymentIntent ID on order (for embedded flow lookup)
+export const setPaymentIntentId = mutation({
+  args: {
+    orderId: v.id("orders"),
+    paymentIntentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.orderId, { paymentIntentId: args.paymentIntentId });
+    return args.orderId;
+  },
+});
+
+// Mark order as paid after PaymentIntent succeeds (called from webhook)
+export const completeOrderFromPaymentIntent = mutation({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.orderId, { status: "pending" });
+    return args.orderId;
+  },
+});
+
+// Complete order after Stripe Checkout redirect (called from webhook when Stripe collected shipping)
+export const completeFromStripe = mutation({
+  args: {
+    orderId: v.id("orders"),
+    stripeSessionId: v.string(),
+    customerName: v.string(),
+    customerEmail: v.string(),
+    shippingAddress: v.object({
+      street: v.string(),
+      city: v.string(),
+      state: v.string(),
+      zipCode: v.string(),
+      country: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.orderId, {
+      stripeSessionId: args.stripeSessionId,
+      customerName: args.customerName,
+      customerEmail: args.customerEmail,
+      shippingAddress: args.shippingAddress,
+      status: "pending",
+    });
+    return args.orderId;
+  },
+});
+
+// When shipping was collected on our site, Stripe only collected payment — just mark order paid
+export const completeFromStripeCheckoutOnly = mutation({
+  args: {
+    orderId: v.id("orders"),
+    stripeSessionId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.orderId, {
+      stripeSessionId: args.stripeSessionId,
+      status: "pending",
+    });
+    return args.orderId;
+  },
+});
+
+// Place a new order (legacy — kept for backward compatibility; prefer Stripe flow)
 export const place = mutation({
     args: {
         userId: v.optional(v.id("user")),
@@ -64,10 +212,28 @@ export const listByUser = query({
 
 // Get a single order by ID
 export const getById = query({
-    args: { id: v.id("orders") },
-    handler: async (ctx, args) => {
-        return await ctx.db.get(args.id);
-    },
+  args: { id: v.id("orders") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+// Get order by Stripe Checkout session ID (for confirmation page after redirect)
+export const getByStripeSessionId = query({
+  args: { stripeSessionId: v.string() },
+  handler: async (ctx, args) => {
+    const orders = await ctx.db.query("orders").collect();
+    return orders.find((o) => o.stripeSessionId === args.stripeSessionId) ?? null;
+  },
+});
+
+// Get order by Stripe PaymentIntent ID (for embedded payment confirmation)
+export const getByPaymentIntentId = query({
+  args: { paymentIntentId: v.string() },
+  handler: async (ctx, args) => {
+    const orders = await ctx.db.query("orders").collect();
+    return orders.find((o) => o.paymentIntentId === args.paymentIntentId) ?? null;
+  },
 });
 
 
@@ -83,19 +249,20 @@ export const listAll = query({
 
 // Get orders filtered by status
 export const listByStatus = query({
-    args: {
-        status: v.union(
-            v.literal("pending"),
-            v.literal("processing"),
-            v.literal("shipped"),
-            v.literal("delivered"),
-            v.literal("cancelled")
-        ),
-    },
-    handler: async (ctx, args) => {
-        const orders = await ctx.db.query("orders").order("desc").collect();
-        return orders.filter((order) => order.status === args.status);
-    },
+  args: {
+    status: v.union(
+      v.literal("awaiting_payment"),
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("shipped"),
+      v.literal("delivered"),
+      v.literal("cancelled")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const orders = await ctx.db.query("orders").order("desc").collect();
+    return orders.filter((order) => order.status === args.status);
+  },
 });
 
 
@@ -103,17 +270,18 @@ export const listByStatus = query({
 
 // Update order status (admin only)
 export const updateStatus = mutation({
-    args: {
-        userId: v.id("user"),
-        orderId: v.id("orders"),
-        status: v.union(
-            v.literal("pending"),
-            v.literal("processing"),
-            v.literal("shipped"),
-            v.literal("delivered"),
-            v.literal("cancelled")
-        ),
-    },
+  args: {
+    userId: v.id("user"),
+    orderId: v.id("orders"),
+    status: v.union(
+      v.literal("awaiting_payment"),
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("shipped"),
+      v.literal("delivered"),
+      v.literal("cancelled")
+    ),
+  },
     handler: async (ctx, args) => {
         await requireAdmin(ctx, args.userId);
         await ctx.db.patch(args.orderId, { status: args.status });

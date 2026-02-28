@@ -12,7 +12,9 @@ import type * as auth from "../auth.js";
 import type * as authActions from "../authActions.js";
 import type * as cart from "../cart.js";
 import type * as files from "../files.js";
+import type * as http from "../http.js";
 import type * as orders from "../orders.js";
+import type * as payments from "../payments.js";
 import type * as products from "../products.js";
 
 import type {
@@ -26,7 +28,9 @@ declare const fullApi: ApiFromModules<{
   authActions: typeof authActions;
   cart: typeof cart;
   files: typeof files;
+  http: typeof http;
   orders: typeof orders;
+  payments: typeof payments;
   products: typeof products;
 }>;
 

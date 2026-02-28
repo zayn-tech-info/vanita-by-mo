@@ -15,6 +15,12 @@ import {
 } from "lucide-react";
 
 const statusConfig = {
+  awaiting_payment: {
+    label: "Awaiting payment",
+    icon: Clock,
+    iconColor: "text-amber-500",
+    textColor: "text-amber-600",
+  },
   pending: {
     label: "Pending",
     icon: Clock,

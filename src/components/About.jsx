@@ -23,9 +23,9 @@ export function About() {
             </div>
 
             {/* Floating Badge */}
-            <div className="absolute -bottom-6 -right-6 lg:-right-10 bg-stone-900 text-white p-6 lg:p-8">
+            <div className="absolute bottom-2 right-2 sm:-bottom-6 sm:-right-6 lg:-right-10 bg-stone-900 text-white p-4 sm:p-6 lg:p-8 max-w-[140px] sm:max-w-none">
               <div className="text-center">
-                <span className="block text-4xl lg:text-5xl font-extralight text-amber-400 mb-1">
+                <span className="block text-2xl sm:text-4xl lg:text-5xl font-extralight text-amber-400 mb-1">
                   15+
                 </span>
                 <span className="text-xs tracking-[0.2em] uppercase font-light">
@@ -51,7 +51,7 @@ export function About() {
             </div>
 
             {/* Heading */}
-            <h2 className="text-4xl sm:text-5xl font-extralight text-stone-800 tracking-wide mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extralight text-stone-800 tracking-wide mb-6 leading-tight">
               Where Heritage
               <br />
               <span className="text-amber-700 font-light">Meets Modern</span>
@@ -77,7 +77,7 @@ export function About() {
             </div>
 
             {/* Values */}
-            <div className="grid grid-cols-2 gap-6 mb-10">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-10">
               <div className="border-l-2 border-amber-600/30 pl-4">
                 <span className="block text-2xl font-extralight text-stone-800 mb-1">
                   100%

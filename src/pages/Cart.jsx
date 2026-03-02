@@ -326,8 +326,8 @@ export function Cart() {
             </div>
 
             {/* Order Summary */}
-            <div className="lg:w-[380px] mt-10 lg:mt-0">
-              <div className="bg-white border border-stone-200 p-6 sm:p-8 sticky top-8">
+            <div className="w-full lg:w-[380px] lg:min-w-[320px] mt-10 lg:mt-0">
+              <div className="bg-white border border-stone-200 p-4 sm:p-6 md:p-8 sticky top-8">
                 <h2 className="text-sm tracking-[0.2em] uppercase text-stone-800 font-medium mb-6 pb-4 border-b border-stone-200">
                   Order Summary
                 </h2>
@@ -505,11 +505,11 @@ export function Cart() {
             </Link>
 
             {/* Featured Categories */}
-            <div className="mt-16 w-full max-w-lg">
+            <div className="mt-16 w-full max-w-lg px-2">
               <p className="text-xs tracking-[0.3em] uppercase text-stone-400 font-light text-center mb-6">
                 Popular Categories
               </p>
-              <div className="flex flex-wrap justify-center gap-3">
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
                 {["Dresses", "Tops", "Sets", "Accessories"].map((cat) => (
                   <Link
                     key={cat}

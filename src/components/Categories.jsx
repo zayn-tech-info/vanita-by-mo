@@ -82,7 +82,7 @@ export function Categories() {
               <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent"></div>
 
               {/* Content */}
-              <div className="absolute inset-0 flex flex-col justify-end p-6">
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
                 <span className="text-amber-400 text-xs tracking-[0.3em] uppercase mb-2 font-light">
                   {category.count} Items
                 </span>

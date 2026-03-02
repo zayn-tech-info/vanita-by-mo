@@ -356,7 +356,7 @@ export function OrderConfirmation() {
 
         {/* Actions — full width below grid */}
         <div className="mt-10 lg:mt-12 pt-8 border-t border-stone-200">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4">
             <Link
               to="/shop"
               className="group inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase font-medium hover:bg-amber-700 transition-colors duration-300"

@@ -56,7 +56,7 @@ export function ProductQuickView({ product, isOpen, onClose }) {
       <div
         className={`
           fixed z-50 bg-[#faf9f7] overflow-y-auto
-          inset-y-0 right-0 w-full sm:w-[420px]
+          inset-y-0 right-0 w-full max-w-[100vw] sm:w-[420px]
           lg:inset-auto lg:top-1/2 lg:left-1/2 lg:w-[900px] lg:max-w-[90vw] lg:max-h-[90vh]
           lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-sm
           transition-all duration-300 ease-out

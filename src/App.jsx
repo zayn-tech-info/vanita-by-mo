@@ -15,7 +15,7 @@ import { AdminOrders } from "./pages/admin/AdminOrders";
 
 export function App() {
   return (
-    <div>
+    <div className="min-h-screen overflow-x-hidden">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />

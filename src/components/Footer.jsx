@@ -234,12 +234,12 @@ export function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/40 text-sm font-light tracking-wide">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+            <p className="text-white/40 text-xs sm:text-sm font-light tracking-wide text-center md:text-left order-1 md:order-none">
               © 2026 Vantia by M.O. All rights reserved.
             </p>
 
-            <div className="flex items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 order-2 md:order-none">
               <a
                 href="#"
                 className="text-white/40 text-sm font-light tracking-wide hover:text-white/70 transition-colors duration-300"
@@ -261,7 +261,7 @@ export function Footer() {
             </div>
 
             {/* Payment Icons */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 order-3 md:order-none w-full md:w-auto">
               <span className="text-white/40 text-xs tracking-wide">
                 We accept:
               </span>

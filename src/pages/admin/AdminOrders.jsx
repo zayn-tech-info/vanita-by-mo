@@ -150,8 +150,8 @@ export function AdminOrders() {
             <p className="text-sm text-stone-400 font-light">No orders found</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <table className="w-full min-w-[520px] text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50/50">
                   <th className="text-left py-3 px-4 text-xs tracking-[0.1em] uppercase text-stone-500 font-light">
@@ -247,7 +247,7 @@ export function AdminOrders() {
             className="fixed inset-0 bg-black/50 z-50"
             onClick={() => setViewingOrder(null)}
           />
-          <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#faf9f7] z-50 overflow-y-auto shadow-2xl">
+          <div className="fixed inset-y-0 right-0 w-full max-w-[100vw] sm:w-[480px] bg-[#faf9f7] z-50 overflow-y-auto shadow-2xl">
             {/* Header */}
             <div className="sticky top-0 bg-[#faf9f7] border-b border-stone-200 px-6 py-4 flex items-center justify-between z-10">
               <h2 className="text-lg font-light text-stone-800 tracking-wide">

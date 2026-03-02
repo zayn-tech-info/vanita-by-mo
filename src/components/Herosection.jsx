@@ -69,7 +69,7 @@ export function Herosection() {
   };
 
   return (
-    <section className="relative h-[90vh] min-h-[600px] overflow-hidden bg-stone-900">
+    <section className="relative h-[85vh] min-h-[380px] sm:min-h-[500px] lg:min-h-[600px] max-h-[900px] overflow-hidden bg-stone-900">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -91,7 +91,7 @@ export function Herosection() {
 
           {/* Content */}
           <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-            <div className="max-w-2xl">
+            <div className="max-w-2xl w-full min-w-0">
               {/* Decorative element */}
               <div
                 className={`flex items-center gap-3 mb-6 transition-all duration-700 delay-100 ${
@@ -108,7 +108,7 @@ export function Herosection() {
 
               {/* Title */}
               <h1
-                className={`text-5xl sm:text-6xl lg:text-7xl font-extralight text-white tracking-wide leading-tight mb-6 transition-all duration-700 delay-200 ${
+                className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extralight text-white tracking-wide leading-tight mb-4 sm:mb-6 transition-all duration-700 delay-200 ${
                   index === currentSlide
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-10"
@@ -205,7 +205,7 @@ export function Herosection() {
       </div>
 
       {/* Slide Counter */}
-      <div className="absolute bottom-8 right-8 text-white/60 text-sm tracking-widest z-10">
+      <div className="absolute bottom-6 right-4 sm:bottom-8 sm:right-8 text-white/60 text-xs sm:text-sm tracking-widest z-10">
         <span className="text-white text-lg">
           {String(currentSlide + 1).padStart(2, "0")}
         </span>

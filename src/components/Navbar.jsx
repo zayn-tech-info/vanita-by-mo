@@ -10,6 +10,7 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const { cartCount } = useCart();
   const navigate = useNavigate();
+  const isAdmin = typeof window !== "undefined" && localStorage.getItem("userRole") === "admin";
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -162,6 +163,15 @@ export function Navbar() {
                 Blog
                 <span className="absolute -bottom-1 left-0 w-0 h-px bg-amber-800 group-hover:w-full transition-all duration-300"></span>
               </Link>
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="text-sm tracking-widest text-amber-800 bg-amber-100/80 hover:bg-amber-200/90 px-3 py-1.5 rounded transition-colors duration-300 uppercase font-light"
+                >
+                  Admin
+                </Link>
+              )}
             </div>
 
             {/* Right Icons */}
@@ -326,6 +336,14 @@ export function Navbar() {
             >
               Blog
             </Link>
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="block text-sm tracking-widest text-amber-800 bg-amber-100/80 hover:bg-amber-200/90 px-3 py-2 rounded uppercase font-light"
+              >
+                Admin
+              </Link>
+            )}
           </div>
         </div>
       </nav>

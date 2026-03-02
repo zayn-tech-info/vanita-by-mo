@@ -77,7 +77,7 @@ export function Testimonials() {
           </div>
 
           {/* Testimonial Content */}
-          <div className="bg-white p-8 sm:p-12 lg:p-16 shadow-sm border border-stone-100">
+          <div className="bg-white p-6 sm:p-8 md:p-12 lg:p-16 shadow-sm border border-stone-100 mx-2 sm:mx-0">
             {/* Stars */}
             <div className="flex items-center justify-center gap-1 mb-8">
               {[...Array(testimonials[activeIndex].rating)].map((_, i) => (
@@ -125,7 +125,7 @@ export function Testimonials() {
           {/* Navigation Arrows */}
           <button
             onClick={prevTestimonial}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-16 w-12 h-12 border border-stone-300 bg-white text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-300 flex items-center justify-center group"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-4 lg:-translate-x-16 w-10 h-10 sm:w-12 sm:h-12 border border-stone-300 bg-white text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-300 flex items-center justify-center group z-10"
             aria-label="Previous testimonial"
           >
             <svg
@@ -145,7 +145,7 @@ export function Testimonials() {
 
           <button
             onClick={nextTestimonial}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-16 w-12 h-12 border border-stone-300 bg-white text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-300 flex items-center justify-center group"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-4 lg:translate-x-16 w-10 h-10 sm:w-12 sm:h-12 border border-stone-300 bg-white text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-300 flex items-center justify-center group z-10"
             aria-label="Next testimonial"
           >
             <svg

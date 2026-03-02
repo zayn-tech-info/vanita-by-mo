@@ -426,8 +426,8 @@ export function Shop() {
         )}
 
         {/* Top Bar - Results count, Sort, Mobile Filter Toggle */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-stone-200">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-between gap-3 mb-8 pb-6 border-b border-stone-200">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 min-w-0">
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setIsMobileFilterOpen(true)}
@@ -463,14 +463,14 @@ export function Shop() {
           </div>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs tracking-[0.15em] uppercase text-stone-500 font-light">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 w-full sm:w-auto">
+            <span className="hidden sm:inline text-xs tracking-[0.15em] uppercase text-stone-500 font-light shrink-0">
               Sort by
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-stone-300 bg-transparent text-stone-700 text-sm tracking-wide focus:outline-none focus:border-amber-700 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E')] bg-no-repeat bg-position-[right_0.5rem_center]"
+              className="flex-1 sm:flex-none min-w-0 px-3 sm:px-4 py-2 border border-stone-300 bg-transparent text-stone-700 text-sm tracking-wide focus:outline-none focus:border-amber-700 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E')] bg-no-repeat bg-position-[right_0.5rem_center]"
             >
               {sortOptions.map((opt) => (
                 <option key={opt.id} value={opt.id}>
@@ -707,7 +707,7 @@ export function Shop() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-12">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-12">
                     <button
                       onClick={() =>
                         handlePageChange(Math.max(1, currentPage - 1))

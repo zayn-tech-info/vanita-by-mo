@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
+import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -80,10 +81,11 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-[#faf9f7] flex flex-col">
-      <main className="flex-1 flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-lg shadow-lg p-8 relative">
-            <h1 className="text-3xl font-light tracking-wide text-stone-800 text-center mb-8 italic">
+      <Navbar />
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-16">
+        <div className="w-full max-w-md min-w-0">
+          <div className="bg-white rounded-lg shadow-lg p-5 sm:p-6 md:p-8 relative">
+            <h1 className="text-2xl sm:text-3xl font-light tracking-wide text-stone-800 text-center mb-6 sm:mb-8 italic">
               Log in
             </h1>
 

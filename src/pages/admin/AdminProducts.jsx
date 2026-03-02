@@ -276,8 +276,8 @@ export function AdminProducts() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <table className="w-full min-w-[520px] text-sm">
               <thead>
                 <tr className="border-b border-stone-100 bg-stone-50/50">
                   <th className="text-left py-3 px-4 text-xs tracking-widest uppercase text-stone-500 font-light">
@@ -314,7 +314,7 @@ export function AdminProducts() {
                             />
                           )}
                         </div>
-                        <span className="text-stone-800 font-light">
+                        <span className="text-stone-800 font-light truncate max-w-[120px] sm:max-w-[200px] block">
                           {product.name}
                         </span>
                       </div>
@@ -374,7 +374,7 @@ export function AdminProducts() {
             className="fixed inset-0 bg-black/50 z-50"
             onClick={() => setShowModal(false)}
           />
-          <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#faf9f7] z-50 overflow-y-auto shadow-2xl">
+          <div className="fixed inset-y-0 right-0 w-full max-w-[100vw] sm:w-[480px] bg-[#faf9f7] z-50 overflow-y-auto shadow-2xl">
             {/* Modal Header */}
             <div className="sticky top-0 bg-[#faf9f7] border-b border-stone-200 px-6 py-4 flex items-center justify-between z-10">
               <h2 className="text-lg font-light text-stone-800 tracking-wide">

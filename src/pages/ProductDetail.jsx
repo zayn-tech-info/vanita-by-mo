@@ -113,7 +113,7 @@ export function ProductDetail() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
         <div className="lg:flex lg:gap-12 xl:gap-16">
           {/* Product Image */}
-          <div className="lg:flex-1 mb-8 lg:mb-0">
+          <div className="lg:flex-1 mb-8 lg:mb-0 min-w-0">
             <div className="aspect-3/4 overflow-hidden bg-stone-100 sticky top-8">
               <img
                 src={product.image}
@@ -138,7 +138,7 @@ export function ProductDetail() {
           </div>
 
           {/* Product Details */}
-          <div className="lg:w-[480px] xl:w-[520px]">
+          <div className="lg:w-[480px] xl:w-[520px] min-w-0">
             {/* Category */}
             <span className="text-xs tracking-[0.2em] uppercase text-amber-700 font-light">
               {product.category}
@@ -262,7 +262,7 @@ export function ProductDetail() {
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-3 mb-8">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
               {[
                 { icon: Truck, label: "Free Shipping\nOver $200" },
                 { icon: RotateCcw, label: "Easy\nReturns" },
@@ -270,10 +270,10 @@ export function ProductDetail() {
               ].map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="flex flex-col items-center gap-2 py-3 bg-stone-50 border border-stone-100 rounded"
+                  className="flex flex-col items-center gap-1.5 sm:gap-2 py-2 sm:py-3 bg-stone-50 border border-stone-100 rounded min-w-0"
                 >
-                  <Icon size={18} className="text-amber-600" />
-                  <span className="text-[10px] text-stone-500 font-light tracking-wide text-center whitespace-pre-line">
+                  <Icon size={16} className="text-amber-600 shrink-0 sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-[9px] sm:text-[10px] text-stone-500 font-light tracking-wide text-center whitespace-pre-line leading-tight">
                     {label}
                   </span>
                 </div>

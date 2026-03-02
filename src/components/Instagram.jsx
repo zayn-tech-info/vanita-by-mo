@@ -32,7 +32,7 @@ export function Instagram() {
             href="https://www.instagram.com/vanitabymo"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-4xl sm:text-5xl lg:text-6xl font-extralight text-stone-800 tracking-wide mb-4 hover:text-amber-700 transition-colors duration-300"
+            className="inline-block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extralight text-stone-800 tracking-wide mb-4 hover:text-amber-700 transition-colors duration-300 break-words text-center"
           >
             @vanita<span className="text-amber-700 font-light">bymo</span>
           </a>

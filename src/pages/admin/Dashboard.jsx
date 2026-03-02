@@ -116,13 +116,13 @@ export function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <div
               key={stat.label}
-              className="bg-white rounded-xl border border-stone-200 p-5 hover:shadow-md transition-shadow duration-300"
+              className="bg-white rounded-xl border border-stone-200 p-4 sm:p-5 hover:shadow-md transition-shadow duration-300 min-w-0"
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs tracking-[0.15em] uppercase text-stone-500 font-light">
@@ -134,7 +134,7 @@ export function Dashboard() {
                   <Icon size={18} />
                 </div>
               </div>
-              <span className="text-2xl font-light text-stone-800 tracking-wide">
+              <span className="text-xl sm:text-2xl font-light text-stone-800 tracking-wide break-words">
                 {stat.value}
               </span>
             </div>
@@ -207,8 +207,8 @@ export function Dashboard() {
               <p className="text-sm text-stone-400 font-light">No orders yet</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto -mx-2 sm:mx-0">
+              <table className="w-full min-w-[500px] text-sm">
                 <thead>
                   <tr className="border-b border-stone-100">
                     <th className="text-left py-2.5 text-xs tracking-[0.1em] uppercase text-stone-500 font-light">

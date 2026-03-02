@@ -117,18 +117,19 @@ export function AdminLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <header className="h-16 bg-white border-b border-stone-200 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
+        <header className="h-16 bg-white border-b border-stone-200 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30 min-w-0">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-stone-600 hover:text-stone-900"
+            className="lg:hidden p-2 -ml-2 text-stone-600 hover:text-stone-900"
+            aria-label="Open menu"
           >
             <Menu size={22} />
           </button>
 
-          <div className="hidden lg:flex items-center gap-2 text-sm text-stone-500">
-            <span className="font-light">Admin Panel</span>
-            <ChevronRight size={14} className="text-stone-300" />
-            <span className="text-stone-800 capitalize font-medium">
+          <div className="hidden lg:flex items-center gap-2 text-sm text-stone-500 min-w-0 truncate">
+            <span className="font-light shrink-0">Admin Panel</span>
+            <ChevronRight size={14} className="text-stone-300 shrink-0" />
+            <span className="text-stone-800 capitalize font-medium truncate">
               {location.pathname === "/admin"
                 ? "Dashboard"
                 : location.pathname.split("/admin/")[1] || "Dashboard"}
@@ -143,7 +144,7 @@ export function AdminLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto">
+        <main className="flex-1 p-3 sm:p-4 lg:p-8 overflow-auto min-w-0">
           <Outlet />
         </main>
       </div>

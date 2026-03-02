@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { useCart } from "../hooks/useCart";
 import { toast } from "react-toastify";
+import { LogIn, UserPlus, X } from "lucide-react";
 
 export function Cart() {
   const {
@@ -15,6 +16,29 @@ export function Cart() {
     clearCart,
   } = useCart();
   const [removingId, setRemovingId] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isLoggedIn = !!localStorage.getItem("userId");
+
+  // Open modal if redirected from checkout (e.g. ?login=required)
+  useEffect(() => {
+    if (location.state?.requireLogin || new URLSearchParams(location.search).get("login") === "required") {
+      setShowLoginModal(true);
+      // Clear the state/query so it doesn't reopen on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state?.requireLogin, location.search, location.pathname, navigate]);
+
+  const handleProceedToCheckout = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      setShowLoginModal(true);
+    } else {
+      navigate("/checkout");
+    }
+  };
 
   const shippingCost = subtotal > 200 ? 0 : 15;
   const total = subtotal + shippingCost;
@@ -389,12 +413,13 @@ export function Cart() {
                 </div>
 
                 {/* Checkout Button */}
-                <Link
-                  to="/checkout"
+                <button
+                  type="button"
+                  onClick={handleProceedToCheckout}
                   className="block w-full py-4 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-amber-700 transition-colors duration-300 mb-4 text-center"
                 >
                   Proceed to Checkout
-                </Link>
+                </button>
 
                 {/* Trust Badges */}
                 <div className="flex items-center justify-center gap-4 pt-4 border-t border-stone-100">
@@ -524,6 +549,73 @@ export function Cart() {
           </div>
         )}
       </section>
+
+      {/* Login required modal */}
+      {showLoginModal && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
+            onClick={() => setShowLoginModal(false)}
+            aria-hidden="true"
+          />
+          <div
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md mx-4 bg-white rounded-xl shadow-2xl border border-stone-200 overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="login-modal-title"
+            aria-describedby="login-modal-desc"
+          >
+            <div className="p-6 sm:p-8">
+              <div className="flex justify-between items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
+                  <LogIn size={24} className="text-amber-700" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowLoginModal(false)}
+                  className="p-2 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-colors"
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <h2 id="login-modal-title" className="text-xl sm:text-2xl font-light text-stone-900 tracking-wide mt-4">
+                Sign in to checkout
+              </h2>
+              <p id="login-modal-desc" className="text-stone-600 font-light text-sm sm:text-base mt-2 leading-relaxed">
+                Create an account or sign in to complete your order. Your cart is saved and will be waiting for you.
+              </p>
+              <div className="mt-6 sm:mt-8 flex flex-col gap-3">
+                <Link
+                  to="/login"
+                  state={{ from: "cart" }}
+                  onClick={() => setShowLoginModal(false)}
+                  className="flex items-center justify-center gap-2 w-full py-3.5 bg-stone-900 text-white text-sm tracking-[0.15em] uppercase font-medium hover:bg-amber-800 transition-colors rounded-lg"
+                >
+                  <LogIn size={18} />
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  state={{ from: "cart" }}
+                  onClick={() => setShowLoginModal(false)}
+                  className="flex items-center justify-center gap-2 w-full py-3.5 border-2 border-stone-900 text-stone-900 text-sm tracking-[0.15em] uppercase font-medium hover:bg-stone-50 transition-colors rounded-lg"
+                >
+                  <UserPlus size={18} />
+                  Create account
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowLoginModal(false)}
+                  className="w-full py-3 text-stone-500 text-sm font-light hover:text-stone-700 transition-colors"
+                >
+                  Continue shopping
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       <Footer />
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, Navigate } from "react-router-dom";
 import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { loadStripe } from "@stripe/stripe-js";
@@ -127,6 +127,7 @@ export function Checkout() {
   const [searchParams] = useSearchParams();
   const { cartItems, cartCount, subtotal } = useCart();
   const sessionId = useSessionId();
+  const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
   const createCheckoutSession = useAction(api.payments.createCheckoutSession);
   const createPaymentIntent = useAction(api.payments.createPaymentIntent);
   const createPendingOrderWithShipping = useMutation(api.orders.createPendingOrderWithShipping);
@@ -182,6 +183,11 @@ export function Checkout() {
         <Footer />
       </div>
     );
+  }
+
+  // Require login to checkout — redirect to cart and show login modal
+  if (!userId && cartItems.length > 0) {
+    return <Navigate to="/cart" state={{ requireLogin: true }} replace />;
   }
 
   const validateShipping = () => {

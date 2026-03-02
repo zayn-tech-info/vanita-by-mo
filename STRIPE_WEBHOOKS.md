@@ -2,6 +2,26 @@
 
 **Test mode does not change this.** Stripe still sends the same webhook events in test mode. If your order stays "Awaiting payment" after a successful payment, it usually means your Convex backend is not receiving (or not handling) Stripe webhooks.
 
+---
+
+## Make verification work (checklist)
+
+To get webhook **signature verification** working (so you don’t need skip-verify):
+
+1. **Do not use Stripe CLI** (`stripe listen`) for forwarding — it can change the body and break the signature. Use a **Dashboard** endpoint instead.
+2. In **Stripe Dashboard** (toggle **Test mode** on) → **Developers** → **Webhooks** → **Add endpoint**.
+3. **Endpoint URL:** your Convex URL + `/stripe` (e.g. `https://fleet-wombat-210.convex.site/stripe`). No typo, no trailing slash.
+4. **Events to send:** enable at least `payment_intent.succeeded` and `checkout.session.completed` → **Add endpoint**.
+5. Open the new endpoint → **Signing secret** → **Reveal** → copy the **whsec_...** value (no spaces before/after).
+6. In **Convex Dashboard** → **Settings** → **Environment variables**:
+   - Set **`STRIPE_WEBHOOK_SECRET`** = that `whsec_...` (paste once, no extra newline).
+   - Remove **`STRIPE_WEBHOOK_SKIP_VERIFY`** if it exists (so verification runs).
+7. Save and wait for Convex to redeploy, then run a test payment again.
+
+If it still fails, the 400 response now includes a **payload length**. In Stripe Dashboard → **Developers** → **Webhooks** → your endpoint → **Recent events** → open the event and check the payload size; it should match. If it doesn’t, the body is being changed before it reaches Convex.
+
+---
+
 ## What needs to happen
 
 1. **Customer pays** (embedded form or Stripe Checkout).
@@ -109,6 +129,34 @@ Once webhooks are correctly configured, paid orders will move from "Awaiting pay
 1. **Is `stripe listen` running?** In a separate terminal run: `npm run stripe:listen` (or `stripe listen --forward-to https://fleet-wombat-210.convex.site/stripe`). Leave it running while you test.
 2. **Correct webhook secret:** In Convex → Environment Variables, `STRIPE_WEBHOOK_SECRET` must be the **whsec_...** value printed when you started `stripe listen` — not the secret from Stripe Dashboard (that’s for production).
 3. **Check the terminal** where `stripe listen` is running: you should see `payment_intent.succeeded` (or similar) when a test payment completes. If you don’t, the event isn’t reaching Convex.
+
+**"No signatures found matching the expected signature for payload"**
+
+This often happens when the request body is modified before it reaches your app (e.g. when the **Stripe CLI** forwards the request, it can re-serialize the JSON and break the signature).
+
+**Fix: Use the Dashboard endpoint instead of the CLI (recommended for local testing too):**
+
+1. In **Stripe Dashboard** (make sure you’re in **Test mode**), go to **Developers** → **Webhooks** → **Add endpoint**.
+2. **Endpoint URL:** `https://fleet-wombat-210.convex.site/stripe` (or your Convex HTTP URL + `/stripe`).
+3. **Events:** select `payment_intent.succeeded` and `checkout.session.completed` (add more if you need them).
+4. Click **Add endpoint**, then open the new endpoint and click **Reveal** next to **Signing secret**.
+5. Copy the **whsec_...** value and set it in **Convex Dashboard** → **Settings** → **Environment Variables** as **`STRIPE_WEBHOOK_SECRET`** (replace any existing value).
+6. **Stop** running `stripe listen` — you don’t need it. Stripe will send events **directly** to Convex when you use test cards, and the body will be unchanged so verification will succeed.
+7. Run a test payment again; the webhook should return 200 and the order should update.
+
+If you prefer to keep using the CLI, the secret in Convex must be the one printed when you run `stripe listen` (and restarting the CLI gives a new secret, so update Convex each time).
+
+**Stripe “keeps changing” the secret**
+
+Stripe does **not** change the signing secret on its own. It only changes when you (or someone) **Roll** the secret in the Dashboard (Developers → Webhooks → your endpoint → Signing secret → Roll). Avoid rolling unless you have a security reason. If you did roll, copy the **new** `whsec_...` from the Dashboard and set it as `STRIPE_WEBHOOK_SECRET` in Convex. To avoid downtime during a roll, you can set the **new** secret as `STRIPE_WEBHOOK_SECRET` and the **old** one as `STRIPE_WEBHOOK_SECRET_ALT` in Convex; the app will try both so events signed with either secret will be accepted. Once everything uses the new secret, you can remove `STRIPE_WEBHOOK_SECRET_ALT`.
+
+**Skip verification (local dev only)**
+
+If signature verification keeps failing and you only need to test locally, you can **temporarily** skip it:
+
+1. In **Convex Dashboard** → **Settings** → **Environment Variables**, add **`STRIPE_WEBHOOK_SKIP_VERIFY`** = **`true`**.
+2. You do **not** need `STRIPE_WEBHOOK_SECRET` when this is set. Stripe will still send events; the handler will accept the payload without verifying the signature.
+3. **Important:** This is **only for local / test**. **Never** set `STRIPE_WEBHOOK_SKIP_VERIFY` in production. Anyone could send fake "payment succeeded" requests to your webhook URL and your app would mark orders as paid. Remove this variable and set a proper `STRIPE_WEBHOOK_SECRET` before going live.
 
 **Not redirected to order confirmation after payment**
 

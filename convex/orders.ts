@@ -162,6 +162,16 @@ export const completeFromStripeCheckoutOnly = mutation({
   },
 });
 
+export const setConfirmationEmailSent = mutation({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.orderId, {
+      confirmationEmailSentAt: Date.now(),
+    });
+    return args.orderId;
+  },
+});
+
 // Place a new order (legacy — kept for backward compatibility; prefer Stripe flow)
 export const place = mutation({
     args: {

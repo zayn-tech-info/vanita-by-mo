@@ -70,5 +70,6 @@ export default defineSchema({
     ),
     stripeSessionId: v.optional(v.string()),
     paymentIntentId: v.optional(v.string()),
+    confirmationEmailSentAt: v.optional(v.number()),
   }),
 });

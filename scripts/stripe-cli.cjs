@@ -25,7 +25,7 @@ if (!stripeDir) {
 const stripeExe = path.join(packagesPath, stripeDir, "stripe.exe");
 if (!fs.existsSync(stripeExe)) {
   console.error("Stripe CLI: stripe.exe not found at", stripeExe);
-  process.exit(1);
+  process.exit(1)
 }
 
 const args = process.argv.slice(2);

@@ -98,6 +98,13 @@ function EmbeddedPaymentForm({ onSuccess, onCancel, paymentIntentId }) {
           layout: "tabs",
           spacing: "compact",
           radios: true,
+          defaultValues: {
+            billingDetails: {
+              address: {
+                country: "US",
+              },
+            },
+          },
         }}
       />
       {errorMessage && (
@@ -145,7 +152,7 @@ export function Checkout() {
     city: "",
     state: "",
     zipCode: "",
-    country: "",
+    country: "United States",
   });
 
   const shippingCost = subtotal > 200 ? 0 : 15;

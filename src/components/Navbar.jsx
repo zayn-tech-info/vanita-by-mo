@@ -1,16 +1,26 @@
 import { useState } from "react";
 import { useCart } from "../hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, LogOut, User } from "lucide-react";
 
 export function Navbar() {
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { cartCount } = useCart();
   const navigate = useNavigate();
   const isAdmin = typeof window !== "undefined" && localStorage.getItem("userRole") === "admin";
+  const isLoggedIn = typeof window !== "undefined" && !!localStorage.getItem("userId");
+
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userRole");
+    setIsAccountOpen(false);
+    setIsMobileMenuOpen(false);
+    navigate("/");
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -185,25 +195,53 @@ export function Navbar() {
                 <Search size={21} />
               </button>
 
-              <Link
-                to={localStorage.getItem("userId") ? "/my-orders" : "/login"}
-                className="hidden sm:block p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
-                aria-label="Account"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              {/* Account: dropdown when logged in, link to login when not */}
+              {isLoggedIn ? (
+                <div
+                  className="hidden sm:block relative"
+                  onMouseEnter={() => setIsAccountOpen(true)}
+                  onMouseLeave={() => setIsAccountOpen(false)}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-              </Link>
+                  <button
+                    type="button"
+                    className="p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
+                    aria-label="Account menu"
+                    aria-expanded={isAccountOpen}
+                  >
+                    <User size={21} />
+                  </button>
+                  <div
+                    className={`absolute right-0 top-full mt-1 w-48 bg-white shadow-xl border border-stone-100 rounded py-2 z-50 transition-all duration-200 ${
+                      isAccountOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                    }`}
+                  >
+                    <Link
+                      to="/my-orders"
+                      onClick={() => setIsAccountOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 hover:text-amber-800 transition-colors"
+                    >
+                      <User size={16} className="text-stone-400" />
+                      My Orders
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-stone-600 hover:bg-red-50 hover:text-red-600 transition-colors border-t border-stone-100"
+                    >
+                      <LogOut size={16} className="text-stone-400" />
+                      Log out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="hidden sm:block p-2 text-stone-700 hover:text-amber-800 transition-colors duration-300"
+                  aria-label="Log in"
+                >
+                  <User size={21} />
+                </Link>
+              )}
 
               {/* Cart */}
               <Link
@@ -342,6 +380,35 @@ export function Navbar() {
                 className="block text-sm tracking-widest text-amber-800 bg-amber-100/80 hover:bg-amber-200/90 px-3 py-2 rounded uppercase font-light"
               >
                 Admin
+              </Link>
+            )}
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/my-orders"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-sm tracking-widest text-stone-700 hover:text-amber-800 uppercase font-light py-2"
+                >
+                  <User size={16} />
+                  My Orders
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => { handleLogout(); }}
+                  className="flex w-full items-center gap-2 text-sm tracking-widest text-stone-600 hover:text-red-600 uppercase font-light py-2"
+                >
+                  <LogOut size={16} />
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 text-sm tracking-widest text-stone-700 hover:text-amber-800 uppercase font-light py-2"
+              >
+                <User size={16} />
+                Log in
               </Link>
             )}
           </div>

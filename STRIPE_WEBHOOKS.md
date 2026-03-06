@@ -2,6 +2,8 @@
 
 **Test mode does not change this.** Stripe still sends the same webhook events in test mode. If your order stays "Awaiting payment" after a successful payment, it usually means your Convex backend is not receiving (or not handling) Stripe webhooks.
 
+**Production security:** Never set `STRIPE_WEBHOOK_SKIP_VERIFY` in production. Always use a **Dashboard** webhook endpoint (not Stripe CLI) and set `STRIPE_WEBHOOK_SECRET` in Convex from that endpoint’s signing secret. Keep `STRIPE_SECRET_KEY` only in Convex environment variables—never in frontend `.env` files.
+
 ---
 
 ## Make verification work (checklist)

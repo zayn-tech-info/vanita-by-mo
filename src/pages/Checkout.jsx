@@ -22,6 +22,13 @@ import {
 const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
+function getPaymentIntentIdFromClientSecret(clientSecret) {
+  if (!clientSecret || typeof clientSecret !== "string") return undefined;
+  const parts = clientSecret.split("_secret_");
+  const id = parts[0]?.trim();
+  return id && id.startsWith("pi_") ? id : undefined;
+}
+
 function FloatingInput({ name, label, type = "text", required = true, value, isActive, onChange, onFocus, onBlur }) {
   return (
     <div className="relative group">
@@ -492,7 +499,7 @@ export function Checkout() {
                 <div className="p-4 sm:p-5 md:p-6">
                   <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe", variables: { colorPrimary: "#b45309", borderRadius: "0px" } } }}>
                     <EmbeddedPaymentForm
-                      paymentIntentId={clientSecret ? clientSecret.split("_secret_")[0] : undefined}
+                      paymentIntentId={getPaymentIntentIdFromClientSecret(clientSecret)}
                       onSuccess={() => {}}
                       onCancel={() => { setClientSecret(null); setStep(1); }}
                     />

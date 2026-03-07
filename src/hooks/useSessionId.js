@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getSessionId, setSessionId } from "../lib/cookies";
 
 function generateSessionId() {
   return (
@@ -6,12 +7,13 @@ function generateSessionId() {
   );
 }
 
+/** Session ID for cart identity — stored in cookie (not localStorage) for server-friendly persistence. */
 export function useSessionId() {
   const [sessionId] = useState(() => {
-    const existing = localStorage.getItem("vanita_session_id");
+    const existing = getSessionId();
     if (existing) return existing;
     const newId = generateSessionId();
-    localStorage.setItem("vanita_session_id", newId);
+    setSessionId(newId);
     return newId;
   });
   return sessionId;

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import { api } from "./_generated/api";
 
 
 async function requireAdmin(ctx: any, userId: Id<"user">) {
@@ -33,6 +34,7 @@ export const createPendingOrder = mutation({
     subtotal: v.number(),
     shippingCost: v.number(),
     total: v.number(),
+    appliedRedeemCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("orders", {
@@ -51,6 +53,7 @@ export const createPendingOrder = mutation({
       shippingCost: args.shippingCost,
       total: args.total,
       status: "awaiting_payment",
+      appliedRedeemCode: args.appliedRedeemCode,
     });
   },
 });
@@ -83,6 +86,7 @@ export const createPendingOrderWithShipping = mutation({
     subtotal: v.number(),
     shippingCost: v.number(),
     total: v.number(),
+    appliedRedeemCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("orders", {
@@ -95,6 +99,7 @@ export const createPendingOrderWithShipping = mutation({
       shippingCost: args.shippingCost,
       total: args.total,
       status: "awaiting_payment",
+      appliedRedeemCode: args.appliedRedeemCode,
     });
   },
 });
@@ -278,7 +283,9 @@ export const listByStatus = query({
 
 //  ADMIN MUTATIONS
 
-// Update order status (admin only)
+// Update order status (admin only). Schedules a delayed order-status email (e.g. 3 min) to avoid spam when admin corrects status multiple times.
+const ORDER_STATUS_EMAIL_DELAY_MS = 3 * 60 * 1000;
+
 export const updateStatus = mutation({
   args: {
     userId: v.id("user"),
@@ -292,9 +299,50 @@ export const updateStatus = mutation({
       v.literal("cancelled")
     ),
   },
-    handler: async (ctx, args) => {
-        await requireAdmin(ctx, args.userId);
-        await ctx.db.patch(args.orderId, { status: args.status });
-        return args.orderId;
-    },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.userId);
+    await ctx.db.patch(args.orderId, { status: args.status });
+
+    const existing = await ctx.db
+      .query("orderStatusNotificationQueue")
+      .withIndex("by_order", (q) => q.eq("orderId", args.orderId))
+      .first();
+
+    if (existing) {
+      try {
+        await ctx.scheduler.cancel(existing.scheduledJobId);
+      } catch {
+        // Already ran or invalid id
+      }
+    }
+
+    const jobId = await ctx.scheduler.runAfter(
+      ORDER_STATUS_EMAIL_DELAY_MS,
+      api.email.sendOrderStatusNotification,
+      { orderId: args.orderId }
+    );
+
+    if (existing) {
+      await ctx.db.patch(existing._id, { scheduledJobId: String(jobId) });
+    } else {
+      await ctx.db.insert("orderStatusNotificationQueue", {
+        orderId: args.orderId,
+        scheduledJobId: String(jobId),
+      });
+    }
+
+    return args.orderId;
+  },
+});
+
+/** Clear the pending status notification for an order (called by email action after sending). */
+export const clearOrderStatusNotification = mutation({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    const row = await ctx.db
+      .query("orderStatusNotificationQueue")
+      .withIndex("by_order", (q) => q.eq("orderId", args.orderId))
+      .first();
+    if (row) await ctx.db.delete(row._id);
+  },
 });

@@ -14,6 +14,7 @@ import {
   Eye,
   X,
 } from "lucide-react";
+import { getConvexErrorMessage } from "../../lib/convexError";
 import { toast } from "react-toastify";
 
 const statusConfig = {
@@ -88,7 +89,7 @@ export function AdminOrders() {
       await updateStatus({ userId, orderId, status: newStatus });
       toast.success(`Order status updated to ${newStatus}`);
     } catch (err) {
-      toast.error(err.message || "Failed to update status");
+      toast.error(getConvexErrorMessage(err, "Failed to update status"));
     } finally {
       setUpdatingId(null);
     }

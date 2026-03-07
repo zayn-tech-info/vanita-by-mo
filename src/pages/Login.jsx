@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
-import { Footer } from "../components/Footer";
-import { useAction } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useSessionId } from "../hooks/useSessionId";
 import { Loader2 } from "lucide-react";
-import { ConvexError } from "convex/values";
+import { getConvexErrorMessage } from "../lib/convexError";
 import { toast } from "react-toastify";
 
 export function Login() {
+  const sessionId = useSessionId();
+  const mergeGuestCart = useMutation(api.cart.mergeGuestCartIntoUser);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -41,6 +43,11 @@ export function Login() {
       });
       localStorage.setItem("userId", result.userId);
       localStorage.setItem("userRole", result.role);
+      try {
+        await mergeGuestCart({ sessionId, userId: result.userId });
+      } catch {
+        // Non-blocking: cart merge best-effort
+      }
       toast.update(toastId, {
         render: "Login successful!",
         type: "success",
@@ -50,24 +57,8 @@ export function Login() {
       navigate(result.role === "admin" ? "/admin" : "/");
     } catch (err) {
       setLoading(false);
-      let errorMessage = "Login failed. Try again.";
-      if (err instanceof ConvexError) {
-        errorMessage = err.data;
-      } else if (err.data !== undefined) {
-        errorMessage = err.data;
-      } else if (
-        err.message &&
-        err.message.includes("Uncaught ConvexError: ")
-      ) {
-        errorMessage = err.message
-          .split("Uncaught ConvexError: ")[1]
-          .split("at handler")[0]
-          .trim();
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
       toast.update(toastId, {
-        render: errorMessage,
+        render: getConvexErrorMessage(err, "Login failed. Try again."),
         type: "error",
         isLoading: false,
         autoClose: 4000,
@@ -207,8 +198,6 @@ export function Login() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
-import { Footer } from "../components/Footer";
 import { useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Loader2 } from "lucide-react";
-import { ConvexError } from "convex/values";
+import { getConvexErrorMessage } from "../lib/convexError";
 import { toast } from "react-toastify";
 
 export function Signup() {
@@ -52,22 +51,7 @@ export function Signup() {
       navigate("/");
     } catch (err) {
       setLoading(false);
-      let errorMessage = "Signup failed. Try again.";
-      if (err instanceof ConvexError) {
-        errorMessage = err.data;
-      } else if (err.data !== undefined) {
-        errorMessage = err.data;
-      } else if (
-        err.message &&
-        err.message.includes("Uncaught ConvexError: ")
-      ) {
-        errorMessage = err.message
-          .split("Uncaught ConvexError: ")[1]
-          .split("at handler")[0]
-          .trim();
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
+      const errorMessage = getConvexErrorMessage(err, "Signup failed. Try again.");
       toast.update(toastId, {
         render: errorMessage,
         type: "error",
@@ -265,8 +249,6 @@ export function Signup() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

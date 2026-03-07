@@ -5,7 +5,9 @@ import { api } from "../../convex/_generated/api";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { ProductQuickView } from "../components/ProductQuickView";
+import { ProductCardSkeletonGrid } from "../components/ProductCardSkeleton";
 import { useCart } from "../hooks/useCart";
+import { useWishlist } from "../hooks/useWishlist";
 import heroImage from "../assets/images/hero_section3.jpg";
 import { Search } from "lucide-react";
 
@@ -59,7 +61,9 @@ export function Shop() {
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 9;
+  const isLoading = allProducts === undefined;
   const { addToCart } = useCart();
+  const { add: addToWishlist, remove: removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     const category = searchParams.get("category");
@@ -580,7 +584,9 @@ export function Shop() {
 
           {/* Product Grid */}
           <div className="flex-1">
-            {paginatedProducts.length > 0 ? (
+            {isLoading ? (
+              <ProductCardSkeletonGrid count={9} />
+            ) : paginatedProducts.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                   {paginatedProducts.map((product) => (
@@ -635,10 +641,23 @@ export function Shop() {
                           >
                             Add to Cart
                           </button>
-                          <button className="w-8 h-8 sm:w-12 sm:h-12 bg-white text-stone-900 hover:bg-stone-900 hover:text-white transition-colors duration-300 flex items-center justify-center shrink-0">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (isInWishlist(product._id)) removeFromWishlist(product._id);
+                              else addToWishlist(product._id);
+                            }}
+                            className={`w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                              isInWishlist(product._id)
+                                ? "bg-stone-900 text-white"
+                                : "bg-white text-stone-900 hover:bg-stone-900 hover:text-white"
+                            }`}
+                            aria-label={isInWishlist(product._id) ? "Remove from wishlist" : "Add to wishlist"}
+                          >
                             <svg
                               className="w-3.5 h-3.5 sm:w-5 sm:h-5"
-                              fill="none"
+                              fill={isInWishlist(product._id) ? "currentColor" : "none"}
                               stroke="currentColor"
                               viewBox="0 0 24 24"
                             >

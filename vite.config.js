@@ -6,9 +6,12 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    allowedHosts: ["beautiful-gorilla.outray.app"],
+    port: 5137,
+    host: true,
+    allowedHosts: ["adventurous-aquamarine.outray.app", ".outray.app"],
     hmr: {
       clientPort: 443,
+      host: "adventurous-aquamarine.outray.app",
     },
   },
 });

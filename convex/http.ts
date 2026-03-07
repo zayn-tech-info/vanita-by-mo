@@ -129,10 +129,21 @@ http.route({
         });
       }
 
-      if (sessionId) {
-        await ctx.runMutation(api.cart.clearCart, { sessionId });
-      }
+      const order = await ctx.runQuery(api.orders.getById, { id: orderId as Id<"orders"> });
+      await ctx.runMutation(api.cart.clearCart, {
+        sessionId: sessionId ?? "",
+        userId: order?.userId,
+      });
 
+      if (order?.appliedRedeemCode) {
+        try {
+          await ctx.runMutation(api.redeemCodes.recordUsage, {
+            code: order.appliedRedeemCode,
+          });
+        } catch (e) {
+          console.error("Redeem code record usage failed:", e);
+        }
+      }
       try {
         await ctx.runAction(api.email.sendOrderConfirmation, {
           orderId: orderId as Id<"orders">,
@@ -159,8 +170,19 @@ http.route({
         await ctx.runMutation(api.orders.completeOrderFromPaymentIntent, {
           orderId,
         });
-        if (sessionId) {
-          await ctx.runMutation(api.cart.clearCart, { sessionId });
+        const order = await ctx.runQuery(api.orders.getById, { id: orderId });
+        await ctx.runMutation(api.cart.clearCart, {
+          sessionId: sessionId ?? "",
+          userId: order?.userId,
+        });
+        if (order?.appliedRedeemCode) {
+          try {
+            await ctx.runMutation(api.redeemCodes.recordUsage, {
+              code: order.appliedRedeemCode,
+            });
+          } catch (e) {
+            console.error("Redeem code record usage failed:", e);
+          }
         }
         try {
           await ctx.runAction(api.email.sendOrderConfirmation, { orderId });

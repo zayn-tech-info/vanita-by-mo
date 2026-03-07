@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ProductQuickView } from "./ProductQuickView";
+import { ProductCardSkeleton } from "./ProductCardSkeleton";
 import { useCart } from "../hooks/useCart";
+import { useWishlist } from "../hooks/useWishlist";
 
 export function Products() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [hoveredProduct, setHoveredProduct] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const { addToCart } = useCart();
+  const { add: addToWishlist, remove: removeFromWishlist, isInWishlist } = useWishlist();
   const allProducts = useQuery(api.products.list) || [];
 
   const filters = [
@@ -23,6 +26,8 @@ export function Products() {
     activeFilter === "all"
       ? allProducts
       : allProducts.filter((p) => p.category === activeFilter);
+
+  const isLoading = allProducts === undefined;
 
   return (
     <section id="collection" className="bg-[#faf9f7] py-20 lg:py-28">
@@ -67,7 +72,9 @@ export function Products() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-          {filteredProducts.map((product) => (
+          {isLoading
+            ? Array.from({ length: 8 }, (_, i) => <ProductCardSkeleton key={i} />)
+            : filteredProducts.map((product) => (
             <div
               key={product._id}
               className="group relative"
@@ -116,10 +123,22 @@ export function Products() {
                   >
                     Add to Cart
                   </button>
-                  <button className="w-8 h-8 sm:w-12 sm:h-12 bg-white text-stone-900 hover:bg-stone-900 hover:text-white transition-colors duration-300 flex items-center justify-center shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isInWishlist(product._id)) removeFromWishlist(product._id);
+                      else addToWishlist(product._id);
+                    }}
+                    className={`w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                      isInWishlist(product._id)
+                        ? "bg-stone-900 text-white"
+                        : "bg-white text-stone-900 hover:bg-stone-900 hover:text-white"
+                    }`}
+                    aria-label={isInWishlist(product._id) ? "Remove from wishlist" : "Add to wishlist"}
+                  >
                     <svg
                       className="w-3.5 h-3.5 sm:w-5 sm:h-5"
-                      fill="none"
+                      fill={isInWishlist(product._id) ? "currentColor" : "none"}
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >

@@ -4,7 +4,9 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import { ProductDetailSkeleton } from "../components/ProductDetailSkeleton";
 import { useCart } from "../hooks/useCart";
+import { useWishlist } from "../hooks/useWishlist";
 import {
   ChevronRight,
   Minus,
@@ -20,6 +22,7 @@ export function ProductDetail() {
   const { id } = useParams();
   const product = useQuery(api.products.getById, id ? { id } : "skip");
   const { addToCart } = useCart();
+  const { add: addToWishlist, remove: removeFromWishlist, isInWishlist } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -31,9 +34,7 @@ export function ProductDetail() {
     return (
       <div className="bg-[#faf9f7] min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center py-40">
-          <Loader2 size={32} className="animate-spin text-amber-600" />
-        </div>
+        <ProductDetailSkeleton />
         <Footer />
       </div>
     );
@@ -153,6 +154,27 @@ export function ProductDetail() {
             <p className="text-2xl text-amber-700 font-light tracking-wide mb-6">
               ${product.price.toFixed(2)}
             </p>
+
+            {/* Wishlist - when logged in */}
+            {typeof window !== "undefined" && localStorage.getItem("userId") && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (isInWishlist(product._id)) removeFromWishlist(product._id);
+                  else addToWishlist(product._id);
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 border text-sm tracking-wide mb-6 transition-colors ${
+                  isInWishlist(product._id)
+                    ? "bg-stone-900 text-white border-stone-900"
+                    : "border-stone-300 text-stone-700 hover:border-stone-900"
+                }`}
+              >
+                <svg className="w-4 h-4" fill={isInWishlist(product._id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {isInWishlist(product._id) ? "Saved" : "Save to wishlist"}
+              </button>
+            )}
 
             {/* Divider */}
             <div className="h-px bg-stone-200 mb-6" />

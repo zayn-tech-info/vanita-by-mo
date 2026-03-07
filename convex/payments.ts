@@ -1,5 +1,5 @@
 import { action } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { api } from "./_generated/api";
 import Stripe from "stripe";
 
@@ -33,18 +33,30 @@ export const createCheckoutSession = action({
     customerName: v.optional(v.string()),
     customerEmail: v.optional(v.string()),
     shippingAddress: v.optional(shippingAddressSchema),
+    redeemCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     if (args.items.length === 0) {
-      throw new Error("Cart is empty");
+      throw new ConvexError("Your cart is empty. Add items before checkout.");
     }
 
     const clientUrl = process.env.CLIENT_URL;
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!clientUrl || !stripeSecretKey) {
-      throw new Error(
-        "Set CLIENT_URL and STRIPE_SECRET_KEY in Convex Dashboard → Settings → Environment Variables."
-      );
+      throw new ConvexError("Payment is temporarily unavailable. Please try again later.");
+    }
+
+    let total = args.subtotal + args.shippingCost;
+    let appliedRedeemCode: string | undefined;
+    if (args.redeemCode?.trim()) {
+      const code = args.redeemCode.trim().toUpperCase();
+      const result = await ctx.runQuery(api.redeemCodes.validate, {
+        code,
+        subtotal: args.subtotal,
+      });
+      if (!result.valid) throw new ConvexError(result.message);
+      total = args.subtotal + args.shippingCost - result.discountAmount;
+      appliedRedeemCode = code;
     }
 
     const hasShippingFromSite =
@@ -73,7 +85,8 @@ export const createCheckoutSession = action({
           })),
           subtotal: args.subtotal,
           shippingCost: args.shippingCost,
-          total: args.total,
+          total,
+          appliedRedeemCode,
         })
       : await ctx.runMutation(api.orders.createPendingOrder, {
           userId: args.userId,
@@ -89,7 +102,8 @@ export const createCheckoutSession = action({
           })),
           subtotal: args.subtotal,
           shippingCost: args.shippingCost,
-          total: args.total,
+          total,
+          appliedRedeemCode,
         });
 
     const stripe = new Stripe(stripeSecretKey, {
@@ -119,6 +133,20 @@ export const createCheckoutSession = action({
             description: "Standard delivery",
           },
           unit_amount: Math.round(args.shippingCost * 100),
+        },
+        quantity: 1,
+      });
+    }
+    const discountAmount = args.subtotal + args.shippingCost - total;
+    if (discountAmount > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: "Discount",
+            description: appliedRedeemCode ? `Code ${appliedRedeemCode}` : "Discount",
+          },
+          unit_amount: -Math.round(discountAmount * 100),
         },
         quantity: 1,
       });
@@ -153,10 +181,68 @@ export const createCheckoutSession = action({
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     if (!session.url) {
-      throw new Error("Stripe did not return a checkout URL");
+      throw new ConvexError("Unable to start checkout. Please try again.");
     }
 
     return { url: session.url };
+  },
+});
+
+/** Create pending order with shipping (embedded flow). Validates redeem code on backend. */
+export const createOrderWithShipping = action({
+  args: {
+    userId: v.optional(v.id("user")),
+    sessionId: v.string(),
+    customerName: v.string(),
+    customerEmail: v.string(),
+    shippingAddress: v.object({
+      street: v.string(),
+      city: v.string(),
+      state: v.string(),
+      zipCode: v.string(),
+      country: v.string(),
+    }),
+    items: v.array(
+      v.object({
+        productId: v.union(v.number(), v.string(), v.id("products")),
+        name: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        size: v.optional(v.string()),
+        color: v.optional(v.string()),
+        image: v.string(),
+      })
+    ),
+    subtotal: v.number(),
+    shippingCost: v.number(),
+    total: v.number(),
+    redeemCode: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    let total = args.subtotal + args.shippingCost;
+    let appliedRedeemCode: string | undefined;
+    if (args.redeemCode?.trim()) {
+      const code = args.redeemCode.trim().toUpperCase();
+      const result = await ctx.runQuery(api.redeemCodes.validate, {
+        code,
+        subtotal: args.subtotal,
+      });
+      if (!result.valid) throw new ConvexError(result.message);
+      total = args.subtotal + args.shippingCost - result.discountAmount;
+      appliedRedeemCode = code;
+    }
+    return await ctx.runMutation(api.orders.createPendingOrderWithShipping, {
+      userId: args.userId,
+      sessionId: args.sessionId,
+      customerName: args.customerName,
+      customerEmail: args.customerEmail,
+      shippingAddress: args.shippingAddress,
+      items: args.items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total,
+      appliedRedeemCode,
+    });
   },
 });
 
@@ -170,7 +256,7 @@ export const createPaymentIntent = action({
   handler: async (ctx, args) => {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
-      throw new Error("Missing STRIPE_SECRET_KEY in Convex environment variables");
+      throw new ConvexError("Payment is temporarily unavailable. Please try again later.");
     }
 
     const stripe = new Stripe(stripeSecretKey, {
@@ -194,7 +280,7 @@ export const createPaymentIntent = action({
     });
 
     if (!paymentIntent.client_secret) {
-      throw new Error("Stripe did not return a client secret");
+      throw new ConvexError("Unable to start payment. Please try again.");
     }
 
     return { clientSecret: paymentIntent.client_secret };

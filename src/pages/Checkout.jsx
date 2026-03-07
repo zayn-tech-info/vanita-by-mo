@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams, Navigate } from "react-router-dom";
-import { useAction, useMutation } from "convex/react";
+import { Link, useSearchParams, useLocation, Navigate } from "react-router-dom";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { getConvexErrorMessage } from "../lib/convexError";
 import { api } from "../../convex/_generated/api";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -139,17 +140,21 @@ function EmbeddedPaymentForm({ onSuccess, onCancel, paymentIntentId }) {
 
 export function Checkout() {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { cartItems, cartCount, subtotal } = useCart();
   const sessionId = useSessionId();
   const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
   const createCheckoutSession = useAction(api.payments.createCheckoutSession);
   const createPaymentIntent = useAction(api.payments.createPaymentIntent);
-  const createPendingOrderWithShipping = useMutation(api.orders.createPendingOrderWithShipping);
+  const createOrderWithShipping = useAction(api.payments.createOrderWithShipping);
 
+  const codeFromCart = location.state?.appliedRedeemCode;
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
+  const [redeemCodeInput, setRedeemCodeInput] = useState(codeFromCart ?? "");
+  const [appliedCode, setAppliedCode] = useState(codeFromCart ?? null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -163,7 +168,13 @@ export function Checkout() {
   });
 
   const shippingCost = subtotal > 200 ? 0 : 15;
-  const total = subtotal + shippingCost;
+  const baseTotal = subtotal + shippingCost;
+  const redeemResult = useQuery(
+    api.redeemCodes.validate,
+    appliedCode ? { code: appliedCode, subtotal } : "skip"
+  );
+  const discountAmount = redeemResult?.valid ? redeemResult.discountAmount : 0;
+  const total = Math.max(0, baseTotal - discountAmount);
   const useEmbeddedForm = !!stripePublishableKey;
 
   useEffect(() => {
@@ -171,6 +182,13 @@ export function Checkout() {
       toast.info("Checkout was cancelled. Your cart is still here.");
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (codeFromCart) {
+      setRedeemCodeInput(codeFromCart);
+      setAppliedCode(codeFromCart);
+    }
+  }, [codeFromCart]);
 
   if (cartItems.length === 0 && !loading) {
     return (
@@ -226,7 +244,7 @@ export function Checkout() {
       const toastId = toast.loading("Preparing payment...");
       try {
         const userId = localStorage.getItem("userId") || undefined;
-        const orderId = await createPendingOrderWithShipping({
+        const orderId = await createOrderWithShipping({
           userId: userId || undefined,
           sessionId,
           customerName: `${formData.firstName} ${formData.lastName}`,
@@ -245,11 +263,12 @@ export function Checkout() {
             quantity: i.quantity,
             size: i.size,
             color: i.color,
-            image: i.image,
+            image: i.image ?? "",
           })),
           subtotal,
           shippingCost,
           total,
+          redeemCode: appliedCode && redeemResult?.valid ? appliedCode : undefined,
         });
         const { clientSecret: secret } = await createPaymentIntent({
           orderId,
@@ -261,7 +280,7 @@ export function Checkout() {
         toast.update(toastId, { render: "Enter your card details below.", type: "success", isLoading: false, autoClose: 2000 });
       } catch (err) {
         toast.update(toastId, {
-          render: err.message || "Could not start payment. Try again.",
+          render: getConvexErrorMessage(err, "Could not start payment. Try again."),
           type: "error",
           isLoading: false,
           autoClose: 4000,
@@ -304,13 +323,14 @@ export function Checkout() {
           zipCode: formData.zipCode,
           country: formData.country,
         },
+        redeemCode: appliedCode && redeemResult?.valid ? appliedCode : undefined,
       });
       toast.update(toastId, { render: "Redirecting to Stripe...", type: "info", isLoading: false, autoClose: 1500 });
       window.location.href = url;
     } catch (err) {
       setLoading(false);
       toast.update(toastId, {
-        render: err.message || "Could not start checkout. Please try again.",
+        render: getConvexErrorMessage(err, "Could not start checkout. Please try again."),
         type: "error",
         isLoading: false,
         autoClose: 4000,
@@ -366,6 +386,12 @@ export function Checkout() {
             {shippingCost === 0 ? <span className="text-emerald-600">Free</span> : `$${shippingCost.toFixed(2)}`}
           </span>
         </div>
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-stone-500">Discount</span>
+            <span className="text-emerald-600 font-medium">-${discountAmount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between items-center pt-3 border-t border-stone-200">
           <span className="text-sm font-semibold tracking-wide text-stone-800">Total</span>
           <span className="text-xl font-semibold text-stone-900">${total.toFixed(2)}</span>
@@ -461,6 +487,36 @@ export function Checkout() {
                       </div>
                     </div>
                   </div>
+                  {/* Redeem code */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium tracking-widest uppercase text-stone-500">
+                      Redeem code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={redeemCodeInput}
+                        onChange={(e) => setRedeemCodeInput(e.target.value.toUpperCase())}
+                        placeholder="Enter code"
+                        className="flex-1 h-12 px-4 border border-stone-200 text-sm text-stone-800 tracking-wide bg-white/80 focus:bg-white focus:border-amber-500 focus:outline-none transition-colors placeholder:text-stone-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setAppliedCode(redeemCodeInput.trim() || null)}
+                        className="px-4 py-2 border border-stone-300 text-stone-700 text-sm font-medium tracking-wide hover:border-amber-600 hover:text-amber-700 transition-colors"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {appliedCode && redeemResult !== undefined && (
+                      <p className={`text-sm ${redeemResult.valid ? "text-emerald-600" : "text-red-600"}`}>
+                        {redeemResult.valid
+                          ? `Discount applied: -$${redeemResult.discountAmount.toFixed(2)}`
+                          : redeemResult.message}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 pt-4 sm:pt-6">
                     <Link
                       to="/cart"

@@ -3,10 +3,17 @@ import { api } from "../../convex/_generated/api";
 import { useSessionId } from "./useSessionId";
 import { toast } from "react-toastify";
 
+function getUserId() {
+  if (typeof window === "undefined") return undefined;
+  const id = localStorage.getItem("userId");
+  return id || undefined;
+}
+
 export function useCart() {
   const sessionId = useSessionId();
-  const cartItems = useQuery(api.cart.getCart, { sessionId }) ?? [];
-  const cartCount = useQuery(api.cart.getCartCount, { sessionId }) ?? 0;
+  const userId = getUserId();
+  const cartItems = useQuery(api.cart.getCart, { sessionId, userId }) ?? [];
+  const cartCount = useQuery(api.cart.getCartCount, { sessionId, userId }) ?? 0;
   const addToCartMutation = useMutation(api.cart.addToCart);
   const updateQuantityMutation = useMutation(api.cart.updateQuantity);
   const removeFromCartMutation = useMutation(api.cart.removeFromCart);
@@ -20,6 +27,7 @@ export function useCart() {
 
     await addToCartMutation({
       sessionId,
+      userId,
       productId: product._id || product.id,
       name: product.name,
       price: product.price,
@@ -42,7 +50,7 @@ export function useCart() {
   };
 
   const clearCart = async () => {
-    await clearCartMutation({ sessionId });
+    await clearCartMutation({ sessionId, userId });
   };
 
   const subtotal = cartItems.reduce(

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { useCart } from "../hooks/useCart";
@@ -17,10 +19,20 @@ export function Cart() {
   } = useCart();
   const [removingId, setRemovingId] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [redeemCodeInput, setRedeemCodeInput] = useState("");
+  const [appliedCode, setAppliedCode] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   const isLoggedIn = !!localStorage.getItem("userId");
+
+  const redeemResult = useQuery(
+    api.redeemCodes.validate,
+    appliedCode ? { code: appliedCode, subtotal } : "skip"
+  );
+  const discountAmount = redeemResult?.valid ? redeemResult.discountAmount : 0;
+  const shippingCost = subtotal > 200 ? 0 : 15;
+  const total = Math.max(0, subtotal + shippingCost - discountAmount);
 
   // Open modal if redirected from checkout (e.g. ?login=required)
   useEffect(() => {
@@ -36,12 +48,14 @@ export function Cart() {
       e.preventDefault();
       setShowLoginModal(true);
     } else {
-      navigate("/checkout");
+      navigate("/checkout", {
+        state: {
+          appliedRedeemCode:
+            appliedCode && redeemResult?.valid ? appliedCode : null,
+        },
+      });
     }
   };
-
-  const shippingCost = subtotal > 200 ? 0 : 15;
-  const total = subtotal + shippingCost;
 
   const handleRemove = async (id) => {
     setRemovingId(id);
@@ -390,19 +404,49 @@ export function Cart() {
                   <div className="flex gap-2">
                     <input
                       type="text"
+                      value={redeemCodeInput}
+                      onChange={(e) =>
+                        setRedeemCodeInput(e.target.value.toUpperCase())
+                      }
                       placeholder="Promo code"
                       className="flex-1 px-4 py-2.5 border border-stone-300 bg-transparent text-sm text-stone-700 tracking-wide placeholder:text-stone-400 focus:outline-none focus:border-amber-700"
                     />
                     <button
-                      onClick={() => toast.info("Promo codes coming soon!")}
+                      type="button"
+                      onClick={() =>
+                        setAppliedCode(redeemCodeInput.trim() || null)
+                      }
                       className="px-5 py-2.5 bg-stone-900 text-white text-xs tracking-[0.15em] uppercase hover:bg-stone-800 transition-colors shrink-0"
                     >
                       Apply
                     </button>
                   </div>
+                  {appliedCode && redeemResult !== undefined && (
+                    <p
+                      className={`mt-2 text-sm ${
+                        redeemResult?.valid
+                          ? "text-green-700"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {redeemResult?.valid
+                        ? `Discount applied: -$${redeemResult.discountAmount.toFixed(2)}`
+                        : redeemResult?.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Total */}
+                {discountAmount > 0 && (
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-stone-600 font-light text-sm">
+                      Discount
+                    </span>
+                    <span className="text-green-700 font-medium text-sm">
+                      -${discountAmount.toFixed(2)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center mb-8">
                   <span className="text-stone-800 tracking-[0.15em] uppercase text-sm font-medium">
                     Total

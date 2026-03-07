@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   cart: defineTable({
     sessionId: v.string(),
+    userId: v.optional(v.id("user")),
     productId: v.union(v.number(), v.string(), v.id("products")),
     name: v.string(),
     price: v.number(),
@@ -12,7 +13,9 @@ export default defineSchema({
     quantity: v.number(),
     size: v.optional(v.string()),
     color: v.optional(v.string()),
-  }).index("by_session", ["sessionId"]),
+  })
+    .index("by_session", ["sessionId"])
+    .index("by_user", ["userId"]),
 
   user: defineTable({
     name: v.string(),
@@ -71,5 +74,26 @@ export default defineSchema({
     stripeSessionId: v.optional(v.string()),
     paymentIntentId: v.optional(v.string()),
     confirmationEmailSentAt: v.optional(v.number()),
+    appliedRedeemCode: v.optional(v.string()),
   }),
+
+  wishlist: defineTable({
+    userId: v.id("user"),
+    productId: v.id("products"),
+  }).index("by_user", ["userId"]),
+
+  redeemCodes: defineTable({
+    code: v.string(),
+    type: v.union(v.literal("percent"), v.literal("fixed")),
+    value: v.number(),
+    expiresAt: v.number(),
+    maxUses: v.number(),
+    usedCount: v.number(),
+    minPurchase: v.optional(v.number()),
+  }).index("by_code", ["code"]),
+
+  orderStatusNotificationQueue: defineTable({
+    orderId: v.id("orders"),
+    scheduledJobId: v.string(),
+  }).index("by_order", ["orderId"]),
 });

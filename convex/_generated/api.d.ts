@@ -17,6 +17,8 @@ import type * as http from "../http.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
 import type * as products from "../products.js";
+import type * as redeemCodes from "../redeemCodes.js";
+import type * as wishlist from "../wishlist.js";
 
 import type {
   ApiFromModules,
@@ -34,6 +36,8 @@ declare const fullApi: ApiFromModules<{
   orders: typeof orders;
   payments: typeof payments;
   products: typeof products;
+  redeemCodes: typeof redeemCodes;
+  wishlist: typeof wishlist;
 }>;
 
 /**

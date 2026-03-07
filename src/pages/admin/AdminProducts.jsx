@@ -12,6 +12,7 @@ import {
   Upload,
   ImageIcon,
 } from "lucide-react";
+import { getConvexErrorMessage } from "../../lib/convexError";
 import { toast } from "react-toastify";
 
 const emptyForm = {
@@ -169,7 +170,7 @@ export function AdminProducts() {
       setImageFile(null);
       setImagePreview(null);
     } catch (err) {
-      toast.error(err.message || "Something went wrong");
+      toast.error(getConvexErrorMessage(err, "Something went wrong"));
     } finally {
       setLoading(false);
       setUploading(false);
@@ -185,7 +186,7 @@ export function AdminProducts() {
       await removeProduct({ userId, id: productId });
       toast.success("Product deleted");
     } catch (err) {
-      toast.error(err.message || "Failed to delete product");
+      toast.error(getConvexErrorMessage(err, "Failed to delete product"));
     }
   };
 
